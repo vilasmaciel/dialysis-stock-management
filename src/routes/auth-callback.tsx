@@ -12,51 +12,64 @@ function AuthCallback() {
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout
+    let hasRedirected = false
 
-    // Listen for auth state changes - this will fire when Supabase processes the URL hash
+    // First, try to get the session from URL hash immediately
+    const processAuthCallback = async () => {
+      try {
+        console.log('🔄 Processing auth callback from URL hash...')
+        
+        // Get the session from the URL hash
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('❌ Error getting session:', error)
+          setError('Error de autenticación')
+          setTimeout(() => navigate({ to: '/login' }), 2000)
+          return
+        }
+
+        if (session) {
+          console.log('✅ Session found immediately:', session.user.email)
+          hasRedirected = true
+          navigate({ to: '/dashboard' })
+        } else {
+          console.log('⚠️ No session in URL hash, waiting for onAuthStateChange...')
+        }
+      } catch (error) {
+        console.error('❌ Error in processAuthCallback:', error)
+      }
+    }
+
+    // Process immediately
+    processAuthCallback()
+
+    // Listen for auth state changes as fallback
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (hasRedirected) return
+      
       console.log('Auth callback - event:', event, 'session:', session?.user?.email)
 
       if (event === 'SIGNED_IN' && session) {
-        // Successfully signed in, session is now persisted
         console.log('✅ User signed in successfully:', session.user.email)
-        console.log('✅ Session will be persisted in localStorage')
-
-        // Small delay to ensure session is fully saved
-        timeoutId = setTimeout(() => {
-          navigate({ to: '/dashboard' })
-        }, 500)
+        hasRedirected = true
+        navigate({ to: '/dashboard' })
       } else if (event === 'INITIAL_SESSION' && !session) {
-        // No session in the URL, redirect to login
         console.log('❌ No session found in callback')
         timeoutId = setTimeout(() => {
           navigate({ to: '/login' })
-        }, 1000)
-      } else if (event === 'USER_UPDATED') {
-        // User data updated, but we might already be signed in
-        if (session) {
-          console.log('✅ User session updated:', session.user.email)
-          timeoutId = setTimeout(() => {
-            navigate({ to: '/dashboard' })
-          }, 500)
-        }
+        }, 500)
       }
     })
 
-    // Fallback: if nothing happens in 10 seconds, redirect to login
+    // Fallback: if nothing happens in 5 seconds, redirect to login
     const fallbackTimeout = setTimeout(() => {
-      console.log('⏱️ Timeout waiting for auth callback, checking session...')
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          console.log('✅ Session found on timeout, redirecting to dashboard')
-          navigate({ to: '/dashboard' })
-        } else {
-          console.log('❌ No session found on timeout, redirecting to login')
-          setError('La autenticación está tardando demasiado')
-          setTimeout(() => navigate({ to: '/login' }), 2000)
-        }
-      })
-    }, 10000)
+      if (hasRedirected) return
+      
+      console.log('⏱️ Timeout waiting for auth callback, redirecting to login')
+      setError('La autenticación está tardando demasiado')
+      setTimeout(() => navigate({ to: '/login' }), 2000)
+    }, 5000)
 
     return () => {
       subscription.unsubscribe()
@@ -81,13 +94,10 @@ function AuthCallback() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <div className="mb-4 text-4xl">🔄</div>
-        <h2 className="mb-2 text-xl font-semibold">Iniciando sesión...</h2>
+        <div className="mb-4 animate-spin text-4xl">⏳</div>
+        <h2 className="mb-2 text-xl font-semibold">Autenticando...</h2>
         <p className="text-sm text-muted-foreground">
-          Por favor espera mientras completamos tu autenticación
-        </p>
-        <p className="mt-2 text-xs text-gray-400">
-          Esto puede tomar unos segundos...
+          Por favor espera
         </p>
       </div>
     </div>
