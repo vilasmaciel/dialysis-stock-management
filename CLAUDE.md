@@ -1,66 +1,167 @@
-### General rules
+# Development Guidelines
+
+## General rules
 
 - All code, docs and texts must be in english
 - Commits must follow conventional commits convention
 
-### Current Stack
+## Current Stack
+
 - **Build Tool:** Vite
 - **Router:** TanStack Router (file-based routing)
 - **Data Fetching:** TanStack Query (React Query)
-- **UI Library:** React 19.1.0
-- **Design System:** Titan React (@audienseco/titan-react)
-- **Styling:** SHADCN
+- **UI Library:** React 19
+- **Component Library:** SHADCN/UI (for rapid development)
+- **Styling:** Tailwind CSS + CSS Modules (only for custom domain components)
 - **Testing:** Vitest + React Testing Library + MSW
 - **Linting/Formatting:** Biome (automatic)
 
-
-### Core Architecture Principles
+## Core Architecture Principles
 
 1. **Feature-First Organization**: Views are self-contained with their own components, hooks, domain logic, and contexts
-2. **Component Encapsulation**: Each component in its own directory with CSS Modules
-3. **Custom Hooks for Logic**: Extract complex logic and API calls to custom hooks
-4. **Domain Classes for Complex Logic**: Use TypeScript classes for business logic (e.g., `ReportDefinition`), interfaces for simple data shapes
-5. **Import Aliases**: Use `#` aliases for cross-feature imports, relative imports within features
+2. **SHADCN-First UI**: Use SHADCN components for all common UI elements; create custom domain components only when needed
+3. **Component Encapsulation**: Domain components in their own directory; CSS Modules only for complex custom styling
+4. **Custom Hooks for Logic**: Extract complex logic and API calls to custom hooks
+5. **Domain Classes for Complex Logic**: Use TypeScript classes for business logic, interfaces for simple data shapes
+6. **Import Aliases**: Use `#` aliases for cross-feature imports, relative imports within features
 
 **Example of feature-first structure:**
+
 ```typescript
-// CreateReport.tsx - Main view component
+// inventory/components/MaterialCard/MaterialCard.tsx - Domain component
+import { Card, CardHeader, CardContent } from '#/shared/components/ui/card'; // SHADCN
+import { Button } from '#/shared/components/ui/button'; // SHADCN
+import { useMaterials } from '../hooks/useMaterials'; // Same feature
+import type { Material } from '../types'; // Same feature
+
+// routes/_authenticated/inventory.tsx - Route component
 import { useNavigate } from '@tanstack/react-router';
-import { useEventTracker } from '#shared/hooks/useEventTracker'; // Cross-feature
-import { useCreateReport } from './hooks/useCreateReport';        // Same feature
-import { AudienceSize } from './components/AudienceSize/AudienceSize'; // Same feature
+import { useMaterials } from '#features/inventory/hooks/useMaterials'; // Cross-feature
+import { MaterialCard } from '#features/inventory/components/MaterialCard/MaterialCard'; // Cross-feature
 ```
 
 ## 3. Component Development Rules
 
 ### Essential Rules
 
-1. **Directory Structure**: Each component in its own directory with `.module.css` file
-2. **TypeScript Props**: Always define props with TypeScript types/interfaces
-3. **Logic Extraction**: Extract complex logic to custom hooks
-4. **Subcomponents**: Place component-specific children in `components/` subdirectory
-5. **Functional Components**: Use functional components with hooks, never class components
-6. **Prop Naming**: Use descriptive names and optional props sparingly
+1. **Use SHADCN First**: Leverage SHADCN components for common UI elements (buttons, cards, dialogs, inputs, etc.)
+2. **Directory Structure**: Domain-specific components in their own directory with `.module.css` only when custom styling is needed
+3. **TypeScript Props**: Always define props with TypeScript types/interfaces
+4. **Logic Extraction**: Extract complex logic to custom hooks
+5. **Subcomponents**: Place component-specific children in `components/` subdirectory
+6. **Functional Components**: Use functional components with hooks, never class components
+7. **Tailwind-First Styling**: Use Tailwind utility classes for styling; CSS Modules only for complex custom components
+
+### Component Strategy
+
+**SHADCN Components (Preferred):**
+
+- Use for: buttons, cards, dialogs, inputs, forms, modals, dropdowns, etc.
+- Install new components with: `npx shadcn-ui@latest add [component-name]`
+- Customize via Tailwind classes or extend SHADCN component props
+
+**Custom Components (When Needed):**
+
+- Create when: domain-specific logic, complex business rules, or unique layouts required
+- Use CSS Modules for: complex styling that's hard to express with Tailwind
+- Example: `MaterialCard`, `OrderItemCard`, `ReviewSummary` (domain components)
 
 ### Component Complexity Guidelines
 
-- **Simple components** (like `AudienceSize`): Single responsibility, minimal state
-- **Complex components** (like `CreateReport`): Orchestrate multiple subcomponents, use multiple hooks
+- **Simple components**: Use SHADCN directly or compose SHADCN components
+- **Complex components**: Orchestrate SHADCN + custom components with multiple hooks
 - **Container components**: Handle data fetching and state management
-- **Presentation components**: Focus on rendering and user interactions
+- **Presentation components**: Focus on rendering, prefer SHADCN primitives
 
 **❌ Critical Don'ts:**
+
+- Never create custom UI components (buttons, inputs, etc.) when SHADCN provides them
 - Never put business logic directly in component render functions
 - Never use class components - always use functional components with hooks
 - Never create components without TypeScript props definitions
-- Never skip the CSS Modules file even if initially empty
+- Never skip installing available SHADCN components to reinvent the wheel
+
+## 4. SHADCN/UI Usage Guide
+
+### Installation & Setup
+
+SHADCN is already configured via `components.json`. To add new components:
+
+```bash
+npx shadcn-ui@latest add button
+npx shadcn-ui@latest add card
+npx shadcn-ui@latest add dialog
+# ... etc
+```
+
+### Import Pattern
+
+```typescript
+// ✅ Correct: Import from shared UI components
+import { Button } from '#/shared/components/ui/button'
+import { Card, CardHeader, CardContent } from '#/shared/components/ui/card'
+
+// ❌ Wrong: Don't create custom button components
+import { CustomButton } from './components/CustomButton'
+```
+
+### Composition Pattern
+
+Build domain components by composing SHADCN primitives:
+
+```typescript
+// MaterialCard.tsx - Domain component using SHADCN primitives
+import { Card, CardHeader, CardContent } from '#/shared/components/ui/card'
+import { Button } from '#/shared/components/ui/button'
+import type { Material } from '../types'
+
+interface MaterialCardProps {
+  material: Material
+  onEdit: (id: string) => void
+}
+
+export function MaterialCard({ material, onEdit }: MaterialCardProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <h3 className="text-lg font-semibold">{material.name}</h3>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">Stock: {material.stock}</p>
+        <Button onClick={() => onEdit(material.id)} variant="outline">
+          Edit
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+### Styling Strategy
+
+1. **Tailwind First**: Use utility classes for most styling
+2. **SHADCN Variants**: Leverage built-in variants (e.g., `variant="outline"`)
+3. **Custom Classes**: Use `className` prop to extend SHADCN components
+4. **CSS Modules**: Only for complex domain-specific styles that need scoping
+
+### Available SHADCN Components
+
+Common components to use:
+
+- **Layout**: `Card`, `Separator`, `Tabs`, `Sheet`
+- **Forms**: `Input`, `Button`, `Select`, `Checkbox`, `Radio`, `Switch`, `Label`
+- **Feedback**: `Alert`, `Toast`, `Dialog`, `Popover`, `Tooltip`
+- **Data**: `Table`, `Badge`, `Avatar`
+
+[Full list](https://ui.shadcn.com/docs/components)
 
 ## 7. Testing Standards
 
 ### Test Structure
 
 Tests reside in `tests/` directory mirroring the `src/` structure:
-```
+
+```bash
 tests/
 ├── components/           # Tests for shared components
 │   └── Header/          
@@ -74,12 +175,14 @@ tests/
 ### Testing Tools & Patterns
 
 **Tools:**
+
 - **Vitest**: Test runner
 - **React Testing Library**: Component testing
 - **MSW**: API mocking
 - **@testing-library/jest-dom**: Additional matchers
 
 **Basic Test Pattern:**
+
 ```typescript
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -110,65 +213,109 @@ describe('Button Component', () => {
 
 ### What to Test
 
-- **Components**: Rendering, user interactions, conditional states
+- **Domain Components**: Business logic, data transformation, conditional rendering
+- **SHADCN Components**: Don't test SHADCN internals, only test your usage and integration
 - **Hooks**: Return values, state updates, side effects
 - **Views**: Integration of components and hooks, data display
 - **Domain Logic**: Business rules, calculations, transformations
 
+**Testing with SHADCN:**
+
+```typescript
+// ✅ Good: Test your domain logic, not SHADCN internals
+it('displays material name and stock count', () => {
+  const material = { id: '1', name: 'Dialyzer', stock: 10 };
+  render(<MaterialCard material={material} onEdit={jest.fn()} />);
+  
+  expect(screen.getByText('Dialyzer')).toBeInTheDocument();
+  expect(screen.getByText('Stock: 10')).toBeInTheDocument();
+});
+
+// ❌ Bad: Testing SHADCN Card component behavior
+it('card has correct background color', () => {
+  // Don't test SHADCN implementation details
+});
+```
+
 **❌ Critical Don'ts:**
+
+- Never test SHADCN component internals (styling, variants, etc.)
 - Never test implementation details like internal state variables
 - Never make real API calls in tests - always mock with MSW
 - Never use `querySelector` on the container - use accessible queries
 - Never skip testing user interactions and error states
 
-
 ## Development Workflow
 
 ### TDD Cycle (Red-Green-Refactor)
 
-Follow Test-Driven Development for all components and hooks:
+Follow Test-Driven Development for domain components and hooks:
 
 1. **🔴 Red**: Write a failing test that describes the desired behavior
+
    ```typescript
-   // Write test first
-   it('should toggle switch when clicked', async () => {
-     const handleChange = jest.fn();
-     render(<Switch checked={false} onChange={handleChange} />);
+   // Write test first for a domain component
+   it('should display low stock warning when stock is below 10', () => {
+     const material = { id: '1', name: 'Dialyzer', stock: 5 };
+     render(<MaterialCard material={material} onEdit={jest.fn()} />);
      
-     await userEvent.click(screen.getByRole('switch'));
-     expect(handleChange).toHaveBeenCalledWith(true);
+     expect(screen.getByText(/low stock/i)).toBeInTheDocument();
    });
    ```
 
-2. **🟢 Green**: Write the minimal code to make the test pass
+2. **🟢 Green**: Write the minimal code to make the test pass using SHADCN
+
    ```typescript
-   // Implement just enough to pass
-   export function Switch({ checked, onChange }) {
-     return <div role="switch" onClick={() => onChange(!checked)} />;
+   // Implement just enough to pass using SHADCN components
+   import { Card } from '#/shared/components/ui/card';
+   
+   export function MaterialCard({ material, onEdit }) {
+     return (
+       <Card>
+         {material.stock < 10 && <span>Low Stock</span>}
+       </Card>
+     );
    }
    ```
 
 3. **♻️ Refactor**: Improve the code while keeping tests green
+
    ```typescript
-   // Add TypeScript, styling, accessibility, etc.
-   export function Switch({ checked, onChange }: SwitchProps) {
-     // Enhanced implementation...
+   // Add TypeScript, better SHADCN composition, variants, etc.
+   import { Card, CardContent } from '#/shared/components/ui/card';
+   import { Badge } from '#/shared/components/ui/badge';
+   
+   export function MaterialCard({ material, onEdit }: MaterialCardProps) {
+     const isLowStock = material.stock < 10;
+     
+     return (
+       <Card>
+         <CardContent>
+           {isLowStock && (
+             <Badge variant="destructive">Low Stock</Badge>
+           )}
+         </CardContent>
+       </Card>
+     );
    }
    ```
 
 ### Lean Development Principles
 
 **Work in Small Steps:**
+
 - Implement one feature/behavior at a time
 - Make frequent commits with working code
 - Get feedback quickly through automated tests
 
 **Simplest Thing That Works:**
+
 - Start with basic functionality, add complexity incrementally
 - Use the simplest data structures and patterns first
 - Refactor when patterns become clear
 
 **Fail Fast:**
+
 - Let TypeScript catch errors at compile time
 - Use tests to catch logic errors immediately  
 - Run `npm run build` frequently during development
