@@ -44,23 +44,23 @@ function DashboardPage() {
     <div className="container mx-auto p-6">
       {/* Action Buttons */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="text-center sm:text-left">
           <h1 className="text-2xl font-bold">Inventario de Materiales</h1>
           <p className="text-sm text-muted-foreground">
             Gestiona el stock de materiales de diálisis
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-center sm:justify-start">
+          <Link to="/review">
+            <Button variant="outline">
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              Revisar Stock
+            </Button>
+          </Link>
           <Link to="/orders">
             <Button variant="default">
               <ShoppingCart className="mr-2 h-4 w-4" />
               Generar Pedido
-            </Button>
-          </Link>
-          <Link to="/review">
-            <Button variant="outline">
-              <ClipboardCheck className="mr-2 h-4 w-4" />
-              Ejecutar Revisión
             </Button>
           </Link>
         </div>

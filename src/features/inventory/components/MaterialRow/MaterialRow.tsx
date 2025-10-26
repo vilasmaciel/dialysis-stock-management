@@ -70,76 +70,151 @@ export function MaterialRow({ material }: MaterialRowProps) {
   return (
     <div
       className={cn(
-        'flex items-center gap-2 sm:gap-3 rounded-lg border p-2 sm:p-3 transition-colors',
+        'rounded-lg border p-2 sm:p-3 transition-colors',
         material.needsOrder
           ? 'bg-destructive/10 border-destructive/30'
           : 'bg-card hover:bg-muted/50'
       )}
     >
-      {/* Image/Placeholder */}
-      {material.photoUrl ? (
-        <img
-          src={material.photoUrl}
-          alt={material.name}
-          className="h-12 w-12 rounded object-cover flex-shrink-0"
-        />
-      ) : (
-        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded bg-muted">
-          <Package className="h-6 w-6 text-muted-foreground" />
-        </div>
-      )}
+      {/* Desktop layout: horizontal */}
+      <div className="hidden sm:flex items-center gap-3">
+        {/* Image/Placeholder */}
+        {material.photoUrl ? (
+          <img
+            src={material.photoUrl}
+            alt={material.name}
+            className="h-24 w-24 rounded object-cover flex-shrink-0"
+          />
+        ) : (
+          <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded bg-muted">
+            <Package className="h-12 w-12 text-muted-foreground" />
+          </div>
+        )}
 
-      {/* Material Info */}
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-sm truncate">{material.name}</h3>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-          <span
-            className={cn(
-              'font-semibold',
-              statusColor === 'green' ? 'text-primary' : 'text-destructive'
-            )}
-          >
-            {material.availableSessions} sesiones
-          </span>
+        {/* Material Info */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-base truncate">{material.name}</h3>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
+            <span
+              className={cn(
+                'font-semibold',
+                statusColor === 'green' ? 'text-primary' : 'text-destructive'
+              )}
+            >
+              {material.availableSessions} sesiones
+            </span>
+          </div>
+        </div>
+
+        {/* Stock Controls */}
+        <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleDecrement}
+              disabled={quantity <= 0 || isPending}
+            >
+              <Minus className="h-3 w-3" />
+            </Button>
+
+            <Input
+              type="number"
+              value={quantity}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
+              onKeyDown={handleInputKeyDown}
+              className="h-8 w-16 text-center text-sm p-1"
+              disabled={isPending}
+              min="0"
+              step="1"
+            />
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleIncrement}
+              disabled={isPending}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
+          <span className="text-sm text-muted-foreground">{material.unit}</span>
         </div>
       </div>
 
-      {/* Stock Controls */}
-      <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleDecrement}
-            disabled={quantity <= 0 || isPending}
-          >
-            <Minus className="h-3 w-3" />
-          </Button>
+      {/* Mobile layout: vertical */}
+      <div className="sm:hidden space-y-2">
+        {/* Header with image and name */}
+        <div className="flex items-center gap-2">
+          {/* Image/Placeholder */}
+          {material.photoUrl ? (
+            <img
+              src={material.photoUrl}
+              alt={material.name}
+              className="h-24 w-24 rounded object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded bg-muted">
+              <Package className="h-12 w-12 text-muted-foreground" />
+            </div>
+          )}
 
-          <Input
-            type="number"
-            value={quantity}
-            onChange={handleInputChange}
-            onBlur={handleInputBlur}
-            onKeyDown={handleInputKeyDown}
-            className="h-8 w-16 text-center text-sm p-1"
-            disabled={isPending}
-            min="0"
-            step="1"
-          />
-
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleIncrement}
-            disabled={isPending}
-          >
-            <Plus className="h-3 w-3" />
-          </Button>
+          {/* Material Info */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-base">{material.name}</h3>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
+              <span
+                className={cn(
+                  'font-semibold',
+                  statusColor === 'green' ? 'text-primary' : 'text-destructive'
+                )}
+              >
+                {material.availableSessions} sesiones
+              </span>
+            </div>
+          </div>
         </div>
-        <span className="text-xs text-muted-foreground">{material.unit}</span>
+
+        {/* Stock Controls - Full width */}
+        <div className="flex flex-col items-center gap-0.5">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleDecrement}
+              disabled={quantity <= 0 || isPending}
+            >
+              <Minus className="h-3 w-3" />
+            </Button>
+
+            <Input
+              type="number"
+              value={quantity}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
+              onKeyDown={handleInputKeyDown}
+              className="h-8 w-16 text-center text-sm p-1"
+              disabled={isPending}
+              min="0"
+              step="1"
+            />
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleIncrement}
+              disabled={isPending}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
+          <span className="text-sm text-muted-foreground">{material.unit}</span>
+        </div>
       </div>
     </div>
   )

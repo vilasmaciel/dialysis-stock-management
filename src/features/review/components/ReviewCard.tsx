@@ -3,6 +3,7 @@ import { MaterialWithStats } from '#/shared/types'
 import { Button } from '#/shared/components/ui/button'
 import { Input } from '#/shared/components/ui/input'
 import { cn } from '#/shared/lib/utils'
+import { Minus, Plus, Package } from 'lucide-react'
 
 interface ReviewCardProps {
   material: MaterialWithStats
@@ -14,32 +15,45 @@ interface ReviewCardProps {
 
 export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: ReviewCardProps) {
   const [stock, setStock] = useState(material.currentStock.toString())
-  const [isEditing, setIsEditing] = useState(false)
 
   const handleConfirm = () => {
     const value = parseFloat(stock)
     if (!isNaN(value) && value >= 0) {
       onConfirm(value)
-      setIsEditing(false)
+    }
+  }
+
+  const handleIncrement = () => {
+    const currentValue = parseFloat(stock) || 0
+    setStock((currentValue + 1).toString())
+  }
+
+  const handleDecrement = () => {
+    const currentValue = parseFloat(stock) || 0
+    if (currentValue > 0) {
+      setStock((currentValue - 1).toString())
     }
   }
 
   const stockValue = parseFloat(stock) || 0
   const availableSessions = Math.floor(stockValue / material.usagePerSession)
   const needsOrder = availableSessions < material.minSessions
-  const hasChanges = stockValue !== material.currentStock
 
   return (
     <div className="mx-auto w-full max-w-2xl">
       <div className="rounded-lg border-2 border-primary bg-card p-6 shadow-lg">
         {/* Material Info */}
         <div className="mb-6 text-center">
-          {material.photoUrl && (
+          {material.photoUrl ? (
             <img
               src={material.photoUrl}
               alt={material.name}
               className="mx-auto mb-4 h-32 w-32 rounded-lg object-cover"
             />
+          ) : (
+            <div className="mx-auto mb-4 flex h-32 w-32 items-center justify-center rounded-lg bg-muted">
+              <Package className="h-16 w-16 text-muted-foreground" />
+            </div>
           )}
           <h2 className="text-2xl font-bold">{material.name}</h2>
           <p className="text-muted-foreground">
@@ -47,76 +61,68 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
             {material.uv && ` • ${material.uv}`} • Uso: {material.usagePerSession}{' '}
             {material.unit}/sesión
           </p>
-        </div>
-
-        {/* Stock anterior */}
-        <div className="mb-6 rounded-lg bg-muted p-4">
-          <div className="text-sm text-muted-foreground">Stock registrado:</div>
-          <div className="text-xl font-semibold">
-            {material.currentStock} {material.unit}
-          </div>
-          <div className="mt-1 text-sm text-muted-foreground">
-            ({material.availableSessions} sesiones disponibles)
-          </div>
+          <p className="text-sm text-muted-foreground mt-2">
+            Stock actual: {material.currentStock} {material.unit}
+          </p>
         </div>
 
         {/* Input de stock */}
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="mb-2 block text-sm font-medium">
             ¿Cuánto stock tienes actualmente?
           </label>
-          <div className="flex gap-2">
-            <Input
-              type="number"
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
-              onFocus={() => setIsEditing(true)}
-              placeholder="0"
-              className="text-2xl text-center font-bold"
-              min="0"
-              step="0.1"
-            />
-            <div className="flex items-center px-3 text-lg text-muted-foreground">
-              {material.unit}
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleDecrement}
+                disabled={stockValue <= 0}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <Input
+                type="number"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                placeholder="0"
+                className="text-2xl text-center font-bold w-32"
+                min="0"
+                step="0.1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleIncrement}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
+            <span className="text-sm text-muted-foreground">{material.unit}</span>
           </div>
         </div>
 
-        {/* Preview del nuevo stock */}
-        {isEditing && (
-          <div
-            className={cn(
-              'mb-6 rounded-lg border-2 p-4',
-              needsOrder
-                ? 'border-destructive bg-muted'
-                : hasChanges
-                  ? 'border-yellow-500 bg-yellow-50'
-                  : 'border-primary bg-muted'
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-medium">Sesiones disponibles:</span>
-              <span
-                className={cn(
-                  'text-2xl font-bold',
-                  needsOrder ? 'text-destructive' : 'text-primary'
-                )}
-              >
-                {availableSessions}
-              </span>
-            </div>
-            {needsOrder && (
-              <div className="mt-2 text-sm text-destructive">
-                ⚠️ Stock bajo! Mínimo recomendado: {material.minSessions} sesiones
-              </div>
-            )}
-            {hasChanges && !needsOrder && (
-              <div className="mt-2 text-sm text-yellow-700">
-                ℹ️ El stock cambió de {material.currentStock} a {stockValue} {material.unit}
-              </div>
-            )}
+        {/* Sesiones disponibles */}
+        <div className="mb-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2">
+            <span className="text-sm text-muted-foreground">Sesiones disponibles:</span>
+            <span
+              className={cn(
+                'text-xl font-bold',
+                needsOrder ? 'text-destructive' : 'text-primary'
+              )}
+            >
+              {availableSessions}
+            </span>
           </div>
-        )}
+          {needsOrder && (
+            <div className="mt-2 text-sm text-destructive">
+              ⚠️ Stock bajo! Mínimo recomendado: {material.minSessions} sesiones
+            </div>
+          )}
+        </div>
 
         {/* Botones de acción */}
         <div className="flex gap-3">

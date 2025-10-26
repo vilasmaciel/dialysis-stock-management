@@ -103,7 +103,7 @@ function ReviewPage() {
           <div>
             <h1 className="flex items-center gap-2 text-2xl font-bold">
               <ClipboardList className="h-6 w-6" />
-              Revisión de Inventario
+              Revisión de Stock
             </h1>
             {!isComplete && (
               <p className="text-sm text-muted-foreground">
