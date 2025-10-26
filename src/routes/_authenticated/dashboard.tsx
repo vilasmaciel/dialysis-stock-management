@@ -39,19 +39,19 @@ function DashboardPage() {
 
         <div className="cursor-not-allowed rounded-lg border bg-card p-6 text-card-foreground opacity-60 shadow-sm">
           <div className="mb-3 flex items-center gap-3">
-            <Edit3 className="h-6 w-6 text-muted-foreground" />
+            <Edit3 className="h-6 w-6 text-secondary" />
             <h2 className="text-xl font-semibold">Editar Items</h2>
           </div>
           <p className="text-sm text-muted-foreground">
             Actualizar cantidades con botones +1 / -1
           </p>
-          <p className="mt-2 text-xs text-muted-foreground/80">Próximamente</p>
+          <p className="mt-2 text-xs text-warning">Próximamente</p>
         </div>
 
         <Link to="/review">
           <div className="cursor-pointer rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-all hover:scale-[1.02] hover:shadow-md">
             <div className="mb-3 flex items-center gap-3">
-              <ClipboardCheck className="h-6 w-6 text-primary" />
+              <ClipboardCheck className="h-6 w-6 text-accent" />
               <h2 className="text-xl font-semibold">Revisión</h2>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -63,7 +63,7 @@ function DashboardPage() {
         <Link to="/orders">
           <div className="cursor-pointer rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-all hover:scale-[1.02] hover:shadow-md">
             <div className="mb-3 flex items-center gap-3">
-              <ShoppingCart className="h-6 w-6 text-primary" />
+              <ShoppingCart className="h-6 w-6 text-accent" />
               <h2 className="text-xl font-semibold">Generar Pedido</h2>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -74,24 +74,24 @@ function DashboardPage() {
 
         <div className="cursor-not-allowed rounded-lg border bg-card p-6 text-card-foreground opacity-60 shadow-sm">
           <div className="mb-3 flex items-center gap-3">
-            <BarChart3 className="h-6 w-6 text-muted-foreground" />
+            <BarChart3 className="h-6 w-6 text-secondary" />
             <h2 className="text-xl font-semibold">Historial</h2>
           </div>
           <p className="text-sm text-muted-foreground">
             Ver registro de cambios en el inventario
           </p>
-          <p className="mt-2 text-xs text-muted-foreground/80">Próximamente</p>
+          <p className="mt-2 text-xs text-warning">Próximamente</p>
         </div>
 
         <div className="cursor-not-allowed rounded-lg border bg-card p-6 text-card-foreground opacity-60 shadow-sm">
           <div className="mb-3 flex items-center gap-3">
-            <Settings className="h-6 w-6 text-muted-foreground" />
+            <Settings className="h-6 w-6 text-secondary" />
             <h2 className="text-xl font-semibold">Configuración</h2>
           </div>
           <p className="text-sm text-muted-foreground">
             Configurar materiales y preferencias
           </p>
-          <p className="mt-2 text-xs text-muted-foreground/80">Próximamente</p>
+          <p className="mt-2 text-xs text-warning">Próximamente</p>
         </div>
       </div>
     </div>
