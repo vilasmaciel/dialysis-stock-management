@@ -18,8 +18,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Get initial session from localStorage
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Error getting initial session:', error)
+      }
+
+      if (session) {
+        console.log('✅ Initial session loaded:', session.user.email)
+      } else {
+        console.log('ℹ️ No initial session found')
+      }
+
       setSession(session)
       setUser(session?.user ?? null)
       setIsLoading(false)
@@ -28,13 +38,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('AuthContext - Auth state changed:', event, session?.user?.email)
+
       setSession(session)
       setUser(session?.user ?? null)
+
+      if (event === 'SIGNED_OUT') {
+        console.log('🚪 User signed out')
+      } else if (event === 'SIGNED_IN') {
+        console.log('✅ User signed in:', session?.user?.email)
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('🔄 Token refreshed for:', session?.user?.email)
+      }
+
       setIsLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      console.log('🧹 AuthProvider cleanup - unsubscribing')
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signInWithGoogle = async () => {
