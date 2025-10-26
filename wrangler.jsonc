@@ -1,0 +1,7 @@
+{
+  "name": "dialysis-stock-management",
+  "compatibility_date": "2025-10-26",
+  "assets": {
+    "directory": "./dist"
+  }
+}
