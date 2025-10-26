@@ -1,0 +1,228 @@
+import { useState } from 'react'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { useMaterials } from '#/features/inventory/hooks/useMaterials'
+import { useCreateOrder } from '#/features/orders/hooks/useOrders'
+import { OrderItemCard } from '#/features/orders/components/OrderItemCard'
+import { exportToExcel } from '#/features/orders/utils/excelExport'
+import { Button } from '#/shared/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/components/ui/card'
+import { useAuth } from '#/shared/contexts/AuthContext'
+import type { OrderItem } from '#/shared/types'
+
+export const Route = createFileRoute('/_authenticated/orders')({
+  component: OrdersPage,
+})
+
+function OrdersPage() {
+  const { data: materials, isLoading } = useMaterials()
+  const { mutate: createOrder, isPending: isCreatingOrder } = useCreateOrder()
+  const { user, signOut } = useAuth()
+  const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(new Set())
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-2 text-2xl">⏳</div>
+          <p className="text-muted-foreground">Cargando materiales...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Filter materials that need order
+  const materialsToOrder = materials?.filter((m) => m.needsOrder) || []
+
+  // Initially select all materials that need order
+  if (selectedMaterials.size === 0 && materialsToOrder.length > 0) {
+    setSelectedMaterials(new Set(materialsToOrder.map((m) => m.id)))
+  }
+
+  const selectedItems = materialsToOrder.filter((m) => selectedMaterials.has(m.id))
+
+  const handleToggleMaterial = (materialId: string) => {
+    const newSet = new Set(selectedMaterials)
+    if (newSet.has(materialId)) {
+      newSet.delete(materialId)
+    } else {
+      newSet.add(materialId)
+    }
+    setSelectedMaterials(newSet)
+  }
+
+  const handleGenerateOrder = () => {
+    if (!user || selectedItems.length === 0) return
+
+    const orderItems: OrderItem[] = selectedItems.map((material) => ({
+      materialId: material.id,
+      code: material.code,
+      uv: material.uv,
+      description: material.name,
+      quantity: material.unitsToOrder,
+      unit: material.unit,
+    }))
+
+    // Create order in database
+    createOrder(
+      {
+        userId: user.id,
+        userName: user.user_metadata?.full_name || user.email || 'Usuario',
+        items: orderItems,
+        notes: 'Pedido generado automáticamente desde la aplicación',
+      },
+      {
+        onSuccess: ({ orderNumber }) => {
+          // Export to Excel
+          exportToExcel({
+            orderNumber,
+            orderDate: new Date().toLocaleDateString('es-ES'),
+            userName: user.user_metadata?.full_name || user.email || 'Usuario',
+            items: orderItems,
+          })
+
+          // Reset selection
+          setSelectedMaterials(new Set())
+        },
+      }
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b bg-card">
+        <div className="container mx-auto flex items-center justify-between p-4">
+          <div>
+            <h1 className="text-2xl font-bold">🛒 Generar Pedido</h1>
+            <p className="text-sm text-muted-foreground">
+              {user?.user_metadata?.full_name || user?.email}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Link to="/dashboard">
+              <Button variant="ghost">← Volver</Button>
+            </Link>
+            <Button onClick={() => signOut()} variant="outline">
+              Cerrar sesión
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto p-6">
+        {materialsToOrder.length === 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">✅ Todo en orden</CardTitle>
+              <CardDescription className="text-center">
+                Todos los materiales tienen stock suficiente
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="mb-4 text-6xl">📦</div>
+              <p className="mb-4 text-muted-foreground">
+                No hay materiales que necesiten ser pedidos en este momento
+              </p>
+              <Link to="/inventory">
+                <Button>Ver Inventario</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {/* Resumen */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Resumen del Pedido</CardTitle>
+                <CardDescription>
+                  {materialsToOrder.length} material{materialsToOrder.length !== 1 ? 'es' : ''} con
+                  stock bajo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-lg bg-red-50 p-4 text-center">
+                    <div className="text-3xl font-bold text-red-600">{materialsToOrder.length}</div>
+                    <div className="text-sm text-red-700">Necesitan pedido</div>
+                  </div>
+                  <div className="rounded-lg bg-blue-50 p-4 text-center">
+                    <div className="text-3xl font-bold text-blue-600">{selectedItems.length}</div>
+                    <div className="text-sm text-blue-700">Seleccionados</div>
+                  </div>
+                  <div className="rounded-lg bg-green-50 p-4 text-center">
+                    <div className="text-3xl font-bold text-green-600">
+                      {selectedItems.reduce((sum, m) => sum + m.unitsToOrder, 0).toFixed(0)}
+                    </div>
+                    <div className="text-sm text-green-700">Unidades totales</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Lista de materiales */}
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Materiales a Pedir</h2>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setSelectedMaterials(new Set(materialsToOrder.map((m) => m.id)))
+                    }
+                  >
+                    Seleccionar todos
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setSelectedMaterials(new Set())}>
+                    Limpiar selección
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {materialsToOrder.map((material) => (
+                  <div key={material.id} className="relative">
+                    <input
+                      type="checkbox"
+                      checked={selectedMaterials.has(material.id)}
+                      onChange={() => handleToggleMaterial(material.id)}
+                      className="absolute left-4 top-4 h-5 w-5 cursor-pointer"
+                    />
+                    <div className="pl-12">
+                      <OrderItemCard material={material} showRemoveButton={false} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Botón de acción */}
+            {selectedItems.length > 0 && (
+              <Card className="border-2 border-primary">
+                <CardContent className="pt-6">
+                  <Button
+                    onClick={handleGenerateOrder}
+                    disabled={isCreatingOrder}
+                    size="lg"
+                    className="w-full"
+                  >
+                    {isCreatingOrder ? (
+                      '⏳ Generando pedido...'
+                    ) : (
+                      <>
+                        📄 Generar Pedido y Descargar Excel ({selectedItems.length}{' '}
+                        {selectedItems.length === 1 ? 'item' : 'items'})
+                      </>
+                    )}
+                  </Button>
+                  <p className="mt-2 text-center text-sm text-muted-foreground">
+                    Se creará un pedido en el sistema y se descargará un archivo Excel
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
