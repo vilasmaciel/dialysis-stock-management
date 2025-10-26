@@ -55,6 +55,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       inventory_logs: {
         Row: {
@@ -93,6 +94,14 @@ export interface Database {
           notes?: string | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'inventory_logs_material_id_fkey'
+            columns: ['material_id']
+            referencedRelation: 'materials'
+            referencedColumns: ['id']
+          }
+        ]
       }
       orders: {
         Row: {
@@ -125,6 +134,7 @@ export interface Database {
           created_at?: string
           submitted_at?: string | null
         }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -163,6 +173,20 @@ export interface Database {
           notes?: string | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'order_items_order_id_fkey'
+            columns: ['order_id']
+            referencedRelation: 'orders'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'order_items_material_id_fkey'
+            columns: ['material_id']
+            referencedRelation: 'materials'
+            referencedColumns: ['id']
+          }
+        ]
       }
     }
     Views: {}

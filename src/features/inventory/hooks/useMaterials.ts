@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '#/shared/api/supabase'
-import type { Material, MaterialWithStats } from '#/shared/types'
+import type { MaterialWithStats } from '#/shared/types'
 
 export function useMaterials() {
   return useQuery({

@@ -28,7 +28,6 @@ function ReviewPage() {
     reviewedItems,
     markAsReviewed,
     goToPrevious,
-    reset,
   } = useReviewSession(materials || [])
 
   if (isLoading) {
