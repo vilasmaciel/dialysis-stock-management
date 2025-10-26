@@ -88,10 +88,10 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
             className={cn(
               'mb-6 rounded-lg border-2 p-4',
               needsOrder
-                ? 'border-red-500 bg-red-50'
+                ? 'border-destructive bg-muted'
                 : hasChanges
                   ? 'border-yellow-500 bg-yellow-50'
-                  : 'border-green-500 bg-green-50'
+                  : 'border-primary bg-muted'
             )}
           >
             <div className="flex items-center justify-between">
@@ -99,14 +99,14 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
               <span
                 className={cn(
                   'text-2xl font-bold',
-                  needsOrder ? 'text-red-600' : 'text-green-600'
+                  needsOrder ? 'text-destructive' : 'text-primary'
                 )}
               >
                 {availableSessions}
               </span>
             </div>
             {needsOrder && (
-              <div className="mt-2 text-sm text-red-700">
+              <div className="mt-2 text-sm text-destructive">
                 ⚠️ Stock bajo! Mínimo recomendado: {material.minSessions} sesiones
               </div>
             )}

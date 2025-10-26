@@ -93,14 +93,14 @@ function InventoryPage() {
 
       <div className="container mx-auto p-6">
         {lowStockCount > 0 && (
-          <div className="mb-6 rounded-lg border-l-4 border-red-500 bg-red-50 p-4">
-            <p className="font-semibold text-red-700">
+          <div className="mb-6 rounded-lg border-l-4 border-destructive bg-muted p-4">
+            <p className="font-semibold text-destructive">
               <span className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5" />
                 {lowStockCount} material{lowStockCount !== 1 ? 'es' : ''} con stock bajo
               </span>
             </p>
-            <p className="text-sm text-red-600">
+            <p className="text-sm text-destructive/80">
               Estos materiales necesitan ser pedidos pronto
             </p>
           </div>

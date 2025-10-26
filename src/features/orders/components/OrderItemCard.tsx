@@ -13,7 +13,7 @@ export function OrderItemCard({ material, onRemove, showRemoveButton = true }: O
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <h3 className="font-semibold">{material.name}</h3>
-          <span className="inline-flex rounded-full bg-red-100 px-2 py-1 text-xs font-bold text-red-700">
+          <span className="inline-flex rounded-full bg-muted px-2 py-1 text-xs font-bold text-destructive">
             Stock bajo
           </span>
         </div>
@@ -35,7 +35,7 @@ export function OrderItemCard({ material, onRemove, showRemoveButton = true }: O
           </div>
           <div>
             <span className="text-muted-foreground">Sesiones:</span>
-            <span className="ml-1 font-bold text-red-600">{material.availableSessions}</span>
+            <span className="ml-1 font-bold text-destructive">{material.availableSessions}</span>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@ export function OrderItemCard({ material, onRemove, showRemoveButton = true }: O
             variant="ghost"
             size="sm"
             onClick={onRemove}
-            className="mt-2 text-red-600 hover:text-red-700"
+            className="mt-2 text-destructive hover:text-destructive/80"
           >
             Quitar
           </Button>

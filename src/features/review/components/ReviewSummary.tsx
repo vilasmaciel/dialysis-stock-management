@@ -34,9 +34,9 @@ export function ReviewSummary({ reviewedItems, onSave, onCancel, isSaving }: Rev
               <div className="text-3xl font-bold text-yellow-600">{changedItems.length}</div>
               <div className="text-sm text-yellow-700">Modificados</div>
             </div>
-            <div className="rounded-lg bg-green-50 p-4 text-center">
-              <div className="text-3xl font-bold text-green-600">{unchangedItems.length}</div>
-              <div className="text-sm text-green-700">Sin cambios</div>
+            <div className="rounded-lg bg-muted p-4 text-center">
+              <div className="text-3xl font-bold text-primary">{unchangedItems.length}</div>
+              <div className="text-sm text-primary">Sin cambios</div>
             </div>
           </div>
 
@@ -64,8 +64,8 @@ export function ReviewSummary({ reviewedItems, onSave, onCancel, isSaving }: Rev
                         className={cn(
                           'rounded-full px-3 py-1 text-sm font-semibold',
                           isIncrease
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'
+                            ? 'bg-muted text-primary'
+                            : 'bg-muted text-destructive'
                         )}
                       >
                         {isIncrease ? '+' : ''}

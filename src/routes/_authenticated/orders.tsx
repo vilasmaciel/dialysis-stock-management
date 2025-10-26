@@ -120,7 +120,7 @@ function OrdersPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-center gap-2">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-primary" />
                 Todo en orden
               </CardTitle>
               <CardDescription className="text-center">
@@ -150,19 +150,19 @@ function OrdersPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="rounded-lg bg-red-50 p-4 text-center">
-                    <div className="text-3xl font-bold text-red-600">{materialsToOrder.length}</div>
-                    <div className="text-sm text-red-700">Necesitan pedido</div>
+                  <div className="rounded-lg bg-muted p-4 text-center">
+                    <div className="text-3xl font-bold text-destructive">{materialsToOrder.length}</div>
+                    <div className="text-sm text-destructive">Necesitan pedido</div>
                   </div>
-                  <div className="rounded-lg bg-blue-50 p-4 text-center">
-                    <div className="text-3xl font-bold text-blue-600">{selectedItems.length}</div>
-                    <div className="text-sm text-blue-700">Seleccionados</div>
+                  <div className="rounded-lg bg-muted p-4 text-center">
+                    <div className="text-3xl font-bold text-accent">{selectedItems.length}</div>
+                    <div className="text-sm text-accent/80">Seleccionados</div>
                   </div>
-                  <div className="rounded-lg bg-green-50 p-4 text-center">
-                    <div className="text-3xl font-bold text-green-600">
+                  <div className="rounded-lg bg-muted p-4 text-center">
+                    <div className="text-3xl font-bold text-primary">
                       {selectedItems.reduce((sum, m) => sum + m.unitsToOrder, 0).toFixed(0)}
                     </div>
-                    <div className="text-sm text-green-700">Unidades totales</div>
+                    <div className="text-sm text-primary">Unidades totales</div>
                   </div>
                 </div>
               </CardContent>

@@ -41,7 +41,7 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
             <span
               className={cn(
                 'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white',
-                statusColor === 'green' ? 'bg-green-500' : 'bg-red-500'
+                statusColor === 'green' ? 'bg-primary' : 'bg-destructive'
               )}
             >
               {statusColor === 'green' ? (
@@ -83,7 +83,7 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
           <span
             className={cn(
               'font-bold',
-              statusColor === 'green' ? 'text-green-600' : 'text-red-600'
+              statusColor === 'green' ? 'text-primary' : 'text-destructive'
             )}
           >
             {material.availableSessions} sesiones
@@ -97,7 +97,7 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
       </div>
 
       {material.needsOrder && (
-        <div className="mt-4 flex items-center gap-2 rounded-md bg-red-50 p-2 text-sm text-red-700">
+        <div className="mt-4 flex items-center gap-2 rounded-md bg-muted p-2 text-sm text-destructive">
           <AlertTriangle className="h-4 w-4" />
           <span>
             Se necesita pedir: <strong>{material.unitsToOrder} {material.unit}</strong>
@@ -106,7 +106,7 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
       )}
 
       {material.availableSessions >= material.minSessions && (
-        <div className="mt-4 flex items-center gap-2 rounded-md bg-green-50 p-2 text-sm text-green-700">
+        <div className="mt-4 flex items-center gap-2 rounded-md bg-muted p-2 text-sm text-primary">
           <CheckCircle2 className="h-4 w-4" />
           <span>Stock suficiente para {material.availableSessions} sesiones</span>
         </div>

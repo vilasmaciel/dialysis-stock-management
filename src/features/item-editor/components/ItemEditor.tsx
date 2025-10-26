@@ -98,8 +98,8 @@ export function ItemEditor({ material, open, onOpenChange }: ItemEditorProps) {
                 className={cn(
                   'font-bold',
                   material.availableSessions >= material.minSessions
-                    ? 'text-green-600'
-                    : 'text-red-600'
+                    ? 'text-primary'
+                    : 'text-destructive'
                 )}
               >
                 {material.availableSessions}
@@ -171,7 +171,7 @@ export function ItemEditor({ material, open, onOpenChange }: ItemEditorProps) {
 
           {/* New Stock Preview */}
           {hasChanges && (
-            <div className={cn('rounded-lg border-2 p-4', needsOrder ? 'border-red-500 bg-red-50' : 'border-green-500 bg-green-50')}>
+            <div className={cn('rounded-lg border-2 p-4', needsOrder ? 'border-destructive bg-muted' : 'border-primary bg-muted')}>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Nuevo stock:</span>
                 <span className="text-lg font-bold">
@@ -180,12 +180,12 @@ export function ItemEditor({ material, open, onOpenChange }: ItemEditorProps) {
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-sm font-medium">Sesiones disponibles:</span>
-                <span className={cn('font-bold', needsOrder ? 'text-red-600' : 'text-green-600')}>
+                <span className={cn('font-bold', needsOrder ? 'text-destructive' : 'text-primary')}>
                   {newAvailableSessions}
                 </span>
               </div>
               {needsOrder && (
-                <div className="mt-2 text-sm text-red-700">
+                <div className="mt-2 text-sm text-destructive">
                   ⚠️ El stock está por debajo del mínimo de {material.minSessions} sesiones
                 </div>
               )}
