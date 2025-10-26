@@ -1,99 +1,108 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Package, Edit3, ClipboardCheck, ShoppingCart, BarChart3, Settings } from 'lucide-react'
+import { Loader2, AlertCircle, PackageX, Plus, AlertTriangle, ClipboardCheck, ShoppingCart } from 'lucide-react'
+import { useMaterials } from '#/features/inventory/hooks/useMaterials'
+import { MaterialCard } from '#/features/inventory/components/MaterialCard/MaterialCard'
 import { Button } from '#/shared/components/ui/button'
-import { useAuth } from '#/shared/contexts/AuthContext'
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: DashboardPage,
 })
 
 function DashboardPage() {
-  const { user, signOut } = useAuth()
+  const { data: materials, isLoading, error } = useMaterials()
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <Loader2 className="mb-4 mx-auto h-12 w-12 animate-spin text-primary" />
+            <p className="text-muted-foreground">Cargando inventario...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex min-h-[400px] items-center justify-center">
+          <div className="text-center">
+            <AlertCircle className="mb-2 mx-auto h-10 w-10 text-red-600" />
+            <p className="text-red-600">Error al cargar el inventario</p>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const lowStockCount = materials?.filter((m) => m.needsOrder).length || 0
 
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6 flex items-center justify-between">
+      {/* Action Buttons */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Control de Material de Diálisis</h1>
-          <p className="text-muted-foreground">
-            Bienvenido, {user?.user_metadata?.full_name || user?.email}
+          <h1 className="text-2xl font-bold">Inventario de Materiales</h1>
+          <p className="text-sm text-muted-foreground">
+            Gestiona el stock de materiales de diálisis
           </p>
         </div>
-        <Button onClick={() => signOut()} variant="outline">
-          Cerrar sesión
-        </Button>
+        <div className="flex gap-2">
+          <Link to="/orders">
+            <Button variant="default">
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Generar Pedido
+            </Button>
+          </Link>
+          <Link to="/review">
+            <Button variant="outline">
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              Ejecutar Revisión
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Link to="/inventory">
-          <div className="cursor-pointer rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-all hover:scale-[1.02] hover:shadow-md">
-            <div className="mb-3 flex items-center gap-3">
-              <Package className="h-6 w-6 text-primary" />
-              <h2 className="text-xl font-semibold">Inventario</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Ver y gestionar el stock de materiales
-            </p>
-          </div>
-        </Link>
-
-        <div className="cursor-not-allowed rounded-lg border bg-card p-6 text-card-foreground opacity-60 shadow-sm">
-          <div className="mb-3 flex items-center gap-3">
-            <Edit3 className="h-6 w-6 text-secondary" />
-            <h2 className="text-xl font-semibold">Editar Items</h2>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Actualizar cantidades con botones +1 / -1
+      {/* Low Stock Alert */}
+      {lowStockCount > 0 && (
+        <div className="mb-6 rounded-lg border-l-4 border-destructive bg-muted p-4">
+          <p className="font-semibold text-destructive">
+            <span className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              {lowStockCount} material{lowStockCount !== 1 ? 'es' : ''} con stock bajo
+            </span>
           </p>
-          <p className="mt-2 text-xs text-warning">Próximamente</p>
-        </div>
-
-        <Link to="/review">
-          <div className="cursor-pointer rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-all hover:scale-[1.02] hover:shadow-md">
-            <div className="mb-3 flex items-center gap-3">
-              <ClipboardCheck className="h-6 w-6 text-accent" />
-              <h2 className="text-xl font-semibold">Revisión</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Modo checklist para revisar todo el inventario
-            </p>
-          </div>
-        </Link>
-
-        <Link to="/orders">
-          <div className="cursor-pointer rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-all hover:scale-[1.02] hover:shadow-md">
-            <div className="mb-3 flex items-center gap-3">
-              <ShoppingCart className="h-6 w-6 text-accent" />
-              <h2 className="text-xl font-semibold">Generar Pedido</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Crear y descargar pedido en formato Excel
-            </p>
-          </div>
-        </Link>
-
-        <div className="cursor-not-allowed rounded-lg border bg-card p-6 text-card-foreground opacity-60 shadow-sm">
-          <div className="mb-3 flex items-center gap-3">
-            <BarChart3 className="h-6 w-6 text-secondary" />
-            <h2 className="text-xl font-semibold">Historial</h2>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Ver registro de cambios en el inventario
+          <p className="text-sm text-destructive/80">
+            Estos materiales necesitan ser pedidos pronto
           </p>
-          <p className="mt-2 text-xs text-warning">Próximamente</p>
         </div>
+      )}
 
-        <div className="cursor-not-allowed rounded-lg border bg-card p-6 text-card-foreground opacity-60 shadow-sm">
-          <div className="mb-3 flex items-center gap-3">
-            <Settings className="h-6 w-6 text-secondary" />
-            <h2 className="text-xl font-semibold">Configuración</h2>
+      {/* Materials Grid */}
+      {!materials || materials.length === 0 ? (
+        <div className="flex min-h-[400px] items-center justify-center rounded-lg border-2 border-dashed">
+          <div className="text-center">
+            <PackageX className="mb-2 mx-auto h-16 w-16 text-muted-foreground" />
+            <h3 className="mb-1 font-semibold">No hay materiales registrados</h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Agrega materiales a tu inventario para comenzar
+            </p>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Agregar Material
+            </Button>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Configurar materiales y preferencias
-          </p>
-          <p className="mt-2 text-xs text-warning">Próximamente</p>
         </div>
-      </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {materials.map((material) => (
+            <MaterialCard key={material.id} material={material} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

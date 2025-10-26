@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -35,6 +35,12 @@ declare module '@tanstack/react-router' {
 function App() {
   const auth = useAuth()
 
+  // Memoize the router context to prevent unnecessary re-renders
+  const routerContext = useMemo(
+    () => ({ queryClient, auth }),
+    [auth.session, auth.isLoading]
+  )
+
   // Show loading screen while checking authentication
   if (auth.isLoading) {
     return (
@@ -50,7 +56,7 @@ function App() {
     )
   }
 
-  return <RouterProvider router={router} context={{ queryClient, auth }} />
+  return <RouterProvider router={router} context={routerContext} />
 }
 
 const rootElement = document.getElementById('root')

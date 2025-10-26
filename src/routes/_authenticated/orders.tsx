@@ -132,7 +132,7 @@ function OrdersPage() {
               <p className="mb-4 text-muted-foreground">
                 No hay materiales que necesiten ser pedidos en este momento
               </p>
-              <Link to="/inventory">
+              <Link to="/dashboard">
                 <Button>Ver Inventario</Button>
               </Link>
             </CardContent>

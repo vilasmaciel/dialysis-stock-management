@@ -92,7 +92,7 @@ function ReviewPage() {
     }
 
     setIsSaving(false)
-    navigate({ to: '/inventory' })
+    navigate({ to: '/dashboard' })
   }
 
   return (

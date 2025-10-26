@@ -1,6 +1,5 @@
-import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { useAuth } from '#/shared/contexts/AuthContext'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { Header } from '#/shared/components/Header'
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ context }) => {
@@ -13,19 +12,9 @@ export const Route = createFileRoute('/_authenticated')({
 })
 
 function AuthenticatedLayout() {
-  const { session, isLoading } = useAuth()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    // Redirect to login if session is lost (e.g., after signOut)
-    if (!isLoading && !session) {
-      console.log('🔒 Session lost, redirecting to login...')
-      navigate({ to: '/login' })
-    }
-  }, [session, isLoading, navigate])
-
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <Outlet />
     </div>
   )
