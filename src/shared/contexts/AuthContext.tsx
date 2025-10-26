@@ -18,28 +18,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    let mounted = true
+
     // Get initial session from localStorage
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error('Error getting initial session:', error)
-      }
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
 
-      if (session) {
-        console.log('✅ Initial session loaded:', session.user.email)
-      } else {
-        console.log('ℹ️ No initial session found')
-      }
+        if (!mounted) return
 
-      setSession(session)
-      setUser(session?.user ?? null)
-      setIsLoading(false)
-    })
+        if (error) {
+          console.error('❌ Error getting initial session:', error)
+          setIsLoading(false)
+          return
+        }
+
+        if (session) {
+          console.log('✅ Session restored from storage:', session.user.email)
+          console.log('   Access token expires:', new Date(session.expires_at! * 1000).toLocaleString())
+          setSession(session)
+          setUser(session.user)
+        } else {
+          console.log('ℹ️ No stored session found')
+        }
+      } catch (error) {
+        console.error('❌ Error initializing auth:', error)
+      } finally {
+        if (mounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    initializeAuth()
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('AuthContext - Auth state changed:', event, session?.user?.email)
+      if (!mounted) return
+
+      console.log(`🔐 Auth event: ${event}`, session?.user?.email || 'no user')
 
       setSession(session)
       setUser(session?.user ?? null)
@@ -51,11 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (event === 'TOKEN_REFRESHED') {
         console.log('🔄 Token refreshed for:', session?.user?.email)
       }
-
-      setIsLoading(false)
     })
 
     return () => {
+      mounted = false
       console.log('🧹 AuthProvider cleanup - unsubscribing')
       subscription.unsubscribe()
     }

@@ -35,6 +35,21 @@ declare module '@tanstack/react-router' {
 function App() {
   const auth = useAuth()
 
+  // Show loading screen while checking authentication
+  if (auth.isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="mb-4 text-4xl">⏳</div>
+          <h2 className="mb-2 text-xl font-semibold">Cargando...</h2>
+          <p className="text-sm text-muted-foreground">
+            Verificando tu sesión
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return <RouterProvider router={router} context={{ queryClient, auth }} />
 }
 
