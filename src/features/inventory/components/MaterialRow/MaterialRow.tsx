@@ -105,38 +105,41 @@ export function MaterialRow({ material }: MaterialRowProps) {
       </div>
 
       {/* Stock Controls */}
-      <div className="flex items-center gap-1 flex-shrink-0">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={handleDecrement}
-          disabled={quantity <= 0 || isPending}
-        >
-          <Minus className="h-3 w-3" />
-        </Button>
+      <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleDecrement}
+            disabled={quantity <= 0 || isPending}
+          >
+            <Minus className="h-3 w-3" />
+          </Button>
 
-        <Input
-          type="number"
-          value={quantity}
-          onChange={handleInputChange}
-          onBlur={handleInputBlur}
-          onKeyDown={handleInputKeyDown}
-          className="h-8 w-16 text-center text-sm p-1"
-          disabled={isPending}
-          min="0"
-          step="1"
-        />
+          <Input
+            type="number"
+            value={quantity}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
+            onKeyDown={handleInputKeyDown}
+            className="h-8 w-16 text-center text-sm p-1"
+            disabled={isPending}
+            min="0"
+            step="1"
+          />
 
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={handleIncrement}
-          disabled={isPending}
-        >
-          <Plus className="h-3 w-3" />
-        </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleIncrement}
+            disabled={isPending}
+          >
+            <Plus className="h-3 w-3" />
+          </Button>
+        </div>
+        <span className="text-xs text-muted-foreground">{material.unit}</span>
       </div>
     </div>
   )
