@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CheckCircle2, AlertCircle, AlertTriangle, Edit } from 'lucide-react'
+import { CheckCircle2, AlertCircle, AlertTriangle, Edit, Package } from 'lucide-react'
 import { MaterialWithStats } from '#/shared/types'
 import { cn } from '#/shared/lib/utils'
 import { Button } from '#/shared/components/ui/button'
@@ -34,7 +34,18 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
         )}
         onClick={handleCardClick}
       >
-      <div className="flex items-start justify-between">
+      <div className="flex items-start gap-3">
+        {material.photoUrl ? (
+          <img
+            src={material.photoUrl}
+            alt={material.name}
+            className="h-16 w-16 rounded object-cover"
+          />
+        ) : (
+          <div className="flex h-16 w-16 items-center justify-center rounded bg-muted">
+            <Package className="h-8 w-8 text-muted-foreground" />
+          </div>
+        )}
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold">{material.name}</h3>
@@ -61,13 +72,6 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
             )}
           </div>
         </div>
-        {material.photoUrl && (
-          <img
-            src={material.photoUrl}
-            alt={material.name}
-            className="h-12 w-12 rounded object-cover"
-          />
-        )}
       </div>
 
       <div className="mt-4 space-y-2">

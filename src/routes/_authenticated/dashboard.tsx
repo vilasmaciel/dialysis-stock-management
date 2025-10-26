@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Loader2, AlertCircle, PackageX, Plus, AlertTriangle, ClipboardCheck, ShoppingCart } from 'lucide-react'
 import { useMaterials } from '#/features/inventory/hooks/useMaterials'
-import { MaterialCard } from '#/features/inventory/components/MaterialCard/MaterialCard'
+import { MaterialRow } from '#/features/inventory/components/MaterialRow/MaterialRow'
 import { Button } from '#/shared/components/ui/button'
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
@@ -81,7 +81,7 @@ function DashboardPage() {
         </div>
       )}
 
-      {/* Materials Grid */}
+      {/* Materials List */}
       {!materials || materials.length === 0 ? (
         <div className="flex min-h-[400px] items-center justify-center rounded-lg border-2 border-dashed">
           <div className="text-center">
@@ -97,9 +97,9 @@ function DashboardPage() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-2">
           {materials.map((material) => (
-            <MaterialCard key={material.id} material={material} />
+            <MaterialRow key={material.id} material={material} />
           ))}
         </div>
       )}

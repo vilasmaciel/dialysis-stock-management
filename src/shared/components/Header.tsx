@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { History, Settings, LogOut } from 'lucide-react'
+import { History, Settings, LogOut, ChevronDown } from 'lucide-react'
 import { useAuth } from '#/shared/contexts/AuthContext'
 import {
   DropdownMenu,
@@ -25,17 +25,18 @@ export function Header() {
             alt="Dialysis Stock Management" 
             className="h-10 w-10"
           />
-          <span className="hidden sm:inline text-lg font-semibold">Control de Material</span>
+          <span className="hidden sm:inline text-lg font-semibold">DialyStock</span>
         </Link>
 
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2">
+              <span className="hidden sm:inline">{displayName}</span>
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
                 {displayName.charAt(0).toUpperCase()}
               </div>
-              <span className="hidden sm:inline">{displayName}</span>
+              <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
