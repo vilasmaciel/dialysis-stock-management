@@ -45,7 +45,7 @@ function DashboardPage() {
           <p className="text-sm text-muted-foreground">
             Actualizar cantidades con botones +1 / -1
           </p>
-          <p className="mt-2 text-xs text-yellow-600">Próximamente</p>
+          <p className="mt-2 text-xs text-muted-foreground/80">Próximamente</p>
         </div>
 
         <Link to="/review">
@@ -80,7 +80,7 @@ function DashboardPage() {
           <p className="text-sm text-muted-foreground">
             Ver registro de cambios en el inventario
           </p>
-          <p className="mt-2 text-xs text-yellow-600">Próximamente</p>
+          <p className="mt-2 text-xs text-muted-foreground/80">Próximamente</p>
         </div>
 
         <div className="cursor-not-allowed rounded-lg border bg-card p-6 text-card-foreground opacity-60 shadow-sm">
@@ -91,7 +91,7 @@ function DashboardPage() {
           <p className="text-sm text-muted-foreground">
             Configurar materiales y preferencias
           </p>
-          <p className="mt-2 text-xs text-yellow-600">Próximamente</p>
+          <p className="mt-2 text-xs text-muted-foreground/80">Próximamente</p>
         </div>
       </div>
     </div>

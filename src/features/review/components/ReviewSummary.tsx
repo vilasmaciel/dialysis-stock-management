@@ -26,13 +26,13 @@ export function ReviewSummary({ reviewedItems, onSave, onCancel, isSaving }: Rev
         <CardContent className="space-y-6">
           {/* Estadísticas */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-lg bg-blue-50 p-4 text-center">
-              <div className="text-3xl font-bold text-blue-600">{reviewedItems.length}</div>
-              <div className="text-sm text-blue-700">Revisados</div>
+            <div className="rounded-lg bg-muted p-4 text-center">
+              <div className="text-3xl font-bold text-secondary">{reviewedItems.length}</div>
+              <div className="text-sm text-secondary">Revisados</div>
             </div>
-            <div className="rounded-lg bg-yellow-50 p-4 text-center">
-              <div className="text-3xl font-bold text-yellow-600">{changedItems.length}</div>
-              <div className="text-sm text-yellow-700">Modificados</div>
+            <div className="rounded-lg bg-muted p-4 text-center">
+              <div className="text-3xl font-bold text-accent">{changedItems.length}</div>
+              <div className="text-sm text-accent">Modificados</div>
             </div>
             <div className="rounded-lg bg-muted p-4 text-center">
               <div className="text-3xl font-bold text-primary">{unchangedItems.length}</div>

@@ -90,7 +90,7 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
               needsOrder
                 ? 'border-destructive bg-muted'
                 : hasChanges
-                  ? 'border-yellow-500 bg-yellow-50'
+                  ? 'border-accent bg-muted'
                   : 'border-primary bg-muted'
             )}
           >
@@ -111,7 +111,7 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
               </div>
             )}
             {hasChanges && !needsOrder && (
-              <div className="mt-2 text-sm text-yellow-700">
+              <div className="mt-2 text-sm text-accent">
                 ℹ️ El stock cambió de {material.currentStock} a {stockValue} {material.unit}
               </div>
             )}
