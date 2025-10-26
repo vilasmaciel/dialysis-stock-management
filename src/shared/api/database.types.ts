@@ -14,9 +14,6 @@ export interface Database {
           usage_per_session: number
           current_stock: number
           photo_url: string | null
-          min_sessions: number
-          max_sessions: number
-          order_quantity: number
           notes: string | null
           created_at: string
           updated_at: string
@@ -31,9 +28,6 @@ export interface Database {
           usage_per_session: number
           current_stock?: number
           photo_url?: string | null
-          min_sessions?: number
-          max_sessions?: number
-          order_quantity: number
           notes?: string | null
           created_at?: string
           updated_at?: string
@@ -48,11 +42,32 @@ export interface Database {
           usage_per_session?: number
           current_stock?: number
           photo_url?: string | null
-          min_sessions?: number
-          max_sessions?: number
-          order_quantity?: number
           notes?: string | null
           created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          id: string
+          key: string
+          value: Json
+          description: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          value: Json
+          description?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          value?: Json
+          description?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -190,12 +205,7 @@ export interface Database {
       }
     }
     Views: {}
-    Functions: {
-      calculate_available_sessions: {
-        Args: { stock: number; usage_per_session: number }
-        Returns: number
-      }
-    }
+    Functions: {}
     Enums: {}
   }
 }

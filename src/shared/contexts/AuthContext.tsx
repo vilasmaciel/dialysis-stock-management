@@ -80,24 +80,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signInWithGoogle = async () => {
+    const redirectUrl = `${window.location.origin}/auth-callback`
+    console.log('🔐 Starting Google OAuth with redirect:', redirectUrl)
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth-callback`,
+        redirectTo: redirectUrl,
       },
     })
+    
     if (error) {
-      console.error('Error signing in with Google:', error)
+      console.error('❌ Error signing in with Google:', error)
       throw error
     }
   }
 
   const signOut = async () => {
+    console.log('🚪 Signing out...')
     const { error } = await supabase.auth.signOut()
     if (error) {
-      console.error('Error signing out:', error)
+      console.error('❌ Error signing out:', error)
       throw error
     }
+    console.log('✅ Sign out successful - session will be cleared')
+    // The onAuthStateChange listener will handle the session update
+    // and the router will redirect to login via the _authenticated layout
   }
 
   return (

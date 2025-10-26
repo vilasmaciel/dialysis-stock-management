@@ -1,10 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '#/shared/api/supabase'
+import { useSetting } from '#/shared/hooks/useSettings'
+import { calculateMaterialFields } from '#/shared/types/settings'
 import type { MaterialWithStats } from '#/shared/types'
 
 export function useMaterials() {
+  const { data: sessionsConfig } = useSetting('inventory_sessions')
+
   return useQuery({
-    queryKey: ['materials'],
+    queryKey: ['materials', sessionsConfig],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('materials')
@@ -13,16 +17,13 @@ export function useMaterials() {
 
       if (error) throw error
 
-      // Calculate stats for each material
+      if (!sessionsConfig) {
+        return []
+      }
+
+      // Calculate stats for each material using global config
       const materialsWithStats: MaterialWithStats[] = data.map((material) => {
-        const availableSessions = calculateAvailableSessions(
-          material.current_stock,
-          material.usage_per_session
-        )
-        const needsOrder = availableSessions < material.min_sessions
-        const unitsToOrder = needsOrder
-          ? material.order_quantity - material.current_stock
-          : 0
+        const materialWithCalc = calculateMaterialFields(material, sessionsConfig)
 
         return {
           id: material.id,
@@ -34,26 +35,29 @@ export function useMaterials() {
           usagePerSession: material.usage_per_session,
           currentStock: material.current_stock,
           photoUrl: material.photo_url || undefined,
-          minSessions: material.min_sessions,
-          maxSessions: material.max_sessions,
-          orderQuantity: material.order_quantity,
+          minSessions: sessionsConfig.min_sessions,
+          maxSessions: sessionsConfig.max_sessions,
+          orderQuantity: materialWithCalc.order_quantity,
           notes: material.notes || undefined,
           createdAt: material.created_at,
           updatedAt: material.updated_at,
-          availableSessions,
-          needsOrder,
-          unitsToOrder: Math.max(0, unitsToOrder),
+          availableSessions: materialWithCalc.available_sessions,
+          needsOrder: materialWithCalc.needs_order,
+          unitsToOrder: Math.max(0, materialWithCalc.order_quantity),
         }
       })
 
       return materialsWithStats
     },
+    enabled: !!sessionsConfig,
   })
 }
 
 export function useMaterial(id: string) {
+  const { data: sessionsConfig } = useSetting('inventory_sessions')
+
   return useQuery({
-    queryKey: ['materials', id],
+    queryKey: ['materials', id, sessionsConfig],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('materials')
@@ -63,12 +67,11 @@ export function useMaterial(id: string) {
 
       if (error) throw error
 
-      const availableSessions = calculateAvailableSessions(
-        data.current_stock,
-        data.usage_per_session
-      )
-      const needsOrder = availableSessions < data.min_sessions
-      const unitsToOrder = needsOrder ? data.order_quantity - data.current_stock : 0
+      if (!sessionsConfig) {
+        throw new Error('Session config not loaded')
+      }
+
+      const materialWithCalc = calculateMaterialFields(data, sessionsConfig)
 
       const material: MaterialWithStats = {
         id: data.id,
@@ -80,19 +83,20 @@ export function useMaterial(id: string) {
         usagePerSession: data.usage_per_session,
         currentStock: data.current_stock,
         photoUrl: data.photo_url || undefined,
-        minSessions: data.min_sessions,
-        maxSessions: data.max_sessions,
-        orderQuantity: data.order_quantity,
+        minSessions: sessionsConfig.min_sessions,
+        maxSessions: sessionsConfig.max_sessions,
+        orderQuantity: materialWithCalc.order_quantity,
         notes: data.notes || undefined,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
-        availableSessions,
-        needsOrder,
-        unitsToOrder: Math.max(0, unitsToOrder),
+        availableSessions: materialWithCalc.available_sessions,
+        needsOrder: materialWithCalc.needs_order,
+        unitsToOrder: Math.max(0, materialWithCalc.order_quantity),
       }
 
       return material
     },
+    enabled: !!sessionsConfig,
   })
 }
 
@@ -157,9 +161,3 @@ export function useUpdateMaterialStock() {
   })
 }
 
-function calculateAvailableSessions(stock: number, usagePerSession: number): number {
-  if (usagePerSession === 0) {
-    return 9999 // Infinite sessions if not used
-  }
-  return Math.floor(stock / usagePerSession)
-}
