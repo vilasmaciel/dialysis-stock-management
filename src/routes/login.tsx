@@ -30,9 +30,9 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Control de Material de Diálisis</CardTitle>
+          <CardTitle className="text-2xl">DialyStock</CardTitle>
           <CardDescription>
-            Gestiona el inventario de materiales para diálisis en casa
+            Gestiona el stock de materiales para diálisis domiciliaria
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

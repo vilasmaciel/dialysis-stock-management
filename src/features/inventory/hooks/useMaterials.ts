@@ -5,9 +5,9 @@ import { calculateMaterialFields } from '#/shared/types/settings'
 import type { MaterialWithStats } from '#/shared/types'
 
 export function useMaterials() {
-  const { data: sessionsConfig } = useSetting('inventory_sessions')
+  const { data: sessionsConfig, isLoading: isLoadingSettings } = useSetting('inventory_sessions')
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['materials', sessionsConfig],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -51,12 +51,17 @@ export function useMaterials() {
     },
     enabled: !!sessionsConfig,
   })
+
+  return {
+    ...query,
+    isLoading: query.isLoading || isLoadingSettings,
+  }
 }
 
 export function useMaterial(id: string) {
-  const { data: sessionsConfig } = useSetting('inventory_sessions')
+  const { data: sessionsConfig, isLoading: isLoadingSettings } = useSetting('inventory_sessions')
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['materials', id, sessionsConfig],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -98,6 +103,11 @@ export function useMaterial(id: string) {
     },
     enabled: !!sessionsConfig,
   })
+
+  return {
+    ...query,
+    isLoading: query.isLoading || isLoadingSettings,
+  }
 }
 
 export function useUpdateMaterialStock() {

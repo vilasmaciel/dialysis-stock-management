@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '#/shared/api/supabase'
 
 export const Route = createFileRoute('/auth-callback')({
@@ -82,7 +83,7 @@ function AuthCallback() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 text-4xl">❌</div>
+          <AlertCircle className="mb-4 mx-auto h-16 w-16 text-red-600" />
           <h2 className="mb-2 text-xl font-semibold text-red-600">Error de autenticación</h2>
           <p className="text-sm text-muted-foreground">{error}</p>
           <p className="mt-2 text-xs text-muted-foreground">Redirigiendo al login...</p>
@@ -94,7 +95,7 @@ function AuthCallback() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <div className="mb-4 animate-spin text-4xl">⏳</div>
+        <Loader2 className="mb-4 mx-auto h-12 w-12 animate-spin text-primary" />
         <h2 className="mb-2 text-xl font-semibold">Autenticando...</h2>
         <p className="text-sm text-muted-foreground">
           Por favor espera

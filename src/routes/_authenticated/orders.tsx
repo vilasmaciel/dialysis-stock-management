@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { ShoppingCart, Loader2, ArrowLeft, Package, CheckCircle, FileSpreadsheet, Loader } from 'lucide-react'
 import { useMaterials } from '#/features/inventory/hooks/useMaterials'
 import { useCreateOrder } from '#/features/orders/hooks/useOrders'
 import { OrderItemCard } from '#/features/orders/components/OrderItemCard'
@@ -23,7 +24,7 @@ function OrdersPage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <div className="mb-2 text-2xl">⏳</div>
+          <Loader2 className="mb-2 mx-auto h-8 w-8 animate-spin text-primary" />
           <p className="text-muted-foreground">Cargando materiales...</p>
         </div>
       </div>
@@ -92,14 +93,20 @@ function OrdersPage() {
       <header className="border-b bg-card">
         <div className="container mx-auto flex items-center justify-between p-4">
           <div>
-            <h1 className="text-2xl font-bold">🛒 Generar Pedido</h1>
+            <h1 className="flex items-center gap-2 text-2xl font-bold">
+              <ShoppingCart className="h-6 w-6" />
+              Generar Pedido
+            </h1>
             <p className="text-sm text-muted-foreground">
               {user?.user_metadata?.full_name || user?.email}
             </p>
           </div>
           <div className="flex gap-2">
             <Link to="/dashboard">
-              <Button variant="ghost">← Volver</Button>
+              <Button variant="ghost">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Volver
+              </Button>
             </Link>
             <Button onClick={() => signOut()} variant="outline">
               Cerrar sesión
@@ -112,13 +119,16 @@ function OrdersPage() {
         {materialsToOrder.length === 0 ? (
           <Card>
             <CardHeader>
-              <CardTitle className="text-center">✅ Todo en orden</CardTitle>
+              <CardTitle className="flex items-center justify-center gap-2">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+                Todo en orden
+              </CardTitle>
               <CardDescription className="text-center">
                 Todos los materiales tienen stock suficiente
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
-              <div className="mb-4 text-6xl">📦</div>
+              <Package className="mb-4 mx-auto h-24 w-24 text-muted-foreground" />
               <p className="mb-4 text-muted-foreground">
                 No hay materiales que necesiten ser pedidos en este momento
               </p>
@@ -206,10 +216,14 @@ function OrdersPage() {
                     className="w-full"
                   >
                     {isCreatingOrder ? (
-                      '⏳ Generando pedido...'
+                      <>
+                        <Loader className="mr-2 h-4 w-4 animate-spin" />
+                        Generando pedido...
+                      </>
                     ) : (
                       <>
-                        📄 Generar Pedido y Descargar Excel ({selectedItems.length}{' '}
+                        <FileSpreadsheet className="mr-2 h-4 w-4" />
+                        Generar Pedido y Descargar Excel ({selectedItems.length}{' '}
                         {selectedItems.length === 1 ? 'item' : 'items'})
                       </>
                     )}

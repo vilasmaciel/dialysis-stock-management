@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CheckCircle2, AlertCircle, AlertTriangle, Edit } from 'lucide-react'
 import { MaterialWithStats } from '#/shared/types'
 import { cn } from '#/shared/lib/utils'
 import { Button } from '#/shared/components/ui/button'
@@ -43,7 +44,11 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
                 statusColor === 'green' ? 'bg-green-500' : 'bg-red-500'
               )}
             >
-              {statusColor === 'green' ? '✓' : '!'}
+              {statusColor === 'green' ? (
+                <CheckCircle2 className="h-3 w-3" />
+              ) : (
+                <AlertCircle className="h-3 w-3" />
+              )}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -92,14 +97,18 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
       </div>
 
       {material.needsOrder && (
-        <div className="mt-4 rounded-md bg-red-50 p-2 text-sm text-red-700">
-          ⚠️ Se necesita pedir: <strong>{material.unitsToOrder} {material.unit}</strong>
+        <div className="mt-4 flex items-center gap-2 rounded-md bg-red-50 p-2 text-sm text-red-700">
+          <AlertTriangle className="h-4 w-4" />
+          <span>
+            Se necesita pedir: <strong>{material.unitsToOrder} {material.unit}</strong>
+          </span>
         </div>
       )}
 
       {material.availableSessions >= material.minSessions && (
-        <div className="mt-4 rounded-md bg-green-50 p-2 text-sm text-green-700">
-          ✓ Stock suficiente para {material.availableSessions} sesiones
+        <div className="mt-4 flex items-center gap-2 rounded-md bg-green-50 p-2 text-sm text-green-700">
+          <CheckCircle2 className="h-4 w-4" />
+          <span>Stock suficiente para {material.availableSessions} sesiones</span>
         </div>
       )}
 
@@ -112,7 +121,10 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
             setIsEditorOpen(true)
           }}
         >
-          ✏️ Editar stock
+          <>
+            <Edit className="mr-2 h-4 w-4" />
+            Editar stock
+          </>
         </Button>
       )}
     </div>
