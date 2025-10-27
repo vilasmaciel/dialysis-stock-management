@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MaterialWithStats } from '#/shared/types'
 import { Button } from '#/shared/components/ui/button'
 import { Input } from '#/shared/components/ui/input'
@@ -15,6 +15,11 @@ interface ReviewCardProps {
 
 export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: ReviewCardProps) {
   const [stock, setStock] = useState(material.currentStock.toString())
+
+  // Sync stock input with current material when it changes
+  useEffect(() => {
+    setStock(material.currentStock.toString())
+  }, [material.id, material.currentStock])
 
   const handleConfirm = () => {
     const value = parseFloat(stock)
