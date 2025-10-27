@@ -54,7 +54,7 @@ function DashboardPage() {
           <Link to="/review">
             <Button variant="outline">
               <ClipboardCheck className="mr-2 h-4 w-4" />
-              Revisar Stock
+              Registrar Stock
             </Button>
           </Link>
           <Link to="/orders">

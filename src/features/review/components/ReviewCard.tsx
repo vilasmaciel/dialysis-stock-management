@@ -3,7 +3,7 @@ import { MaterialWithStats } from '#/shared/types'
 import { Button } from '#/shared/components/ui/button'
 import { Input } from '#/shared/components/ui/input'
 import { cn } from '#/shared/lib/utils'
-import { Minus, Plus, Package } from 'lucide-react'
+import { Minus, Plus, Package, Info } from 'lucide-react'
 
 interface ReviewCardProps {
   material: MaterialWithStats
@@ -70,6 +70,16 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
             Stock actual: {material.currentStock} {material.unit}
           </p>
         </div>
+
+        {/* Descripción del material */}
+        {material.description && (
+          <div className="mb-4 flex items-center gap-3 rounded-lg border bg-muted/50 px-4 py-3">
+            <Info className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              {material.description}
+            </p>
+          </div>
+        )}
 
         {/* Input de stock */}
         <div className="mb-4">
