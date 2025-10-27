@@ -54,12 +54,36 @@ export function useUpdateMaterial() {
 
 /**
  * Hook to delete a material
+ * Validates that the material has no order history before deletion
  */
 export function useDeleteMaterial() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // Check if material has order items
+      const { data: orderItems, error: checkError } = await supabase
+        .from('order_items')
+        .select('id', { count: 'exact', head: true })
+        .eq('material_id', id)
+
+      if (checkError) throw checkError
+
+      // If material has order history, prevent deletion
+      if (orderItems !== null) {
+        const { count } = await supabase
+          .from('order_items')
+          .select('*', { count: 'exact', head: true })
+          .eq('material_id', id)
+
+        if (count && count > 0) {
+          throw new Error(
+            'No se puede eliminar este material porque tiene pedidos históricos asociados. Los materiales con historial de pedidos deben mantenerse para preservar la integridad de los registros.'
+          )
+        }
+      }
+
+      // Delete material if no order history exists
       const { error } = await supabase.from('materials').delete().eq('id', id)
 
       if (error) throw error

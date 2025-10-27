@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Loader2, Trash2, Package } from 'lucide-react'
+import { Loader2, Trash2, Package, AlertCircle } from 'lucide-react'
 import type { Material } from '#/shared/types/material'
 import { Button } from '#/shared/components/ui/button'
 import { Input } from '#/shared/components/ui/input'
@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#/shared/components/ui/dialog'
+import { Alert, AlertDescription } from '#/shared/components/ui/alert'
 import { useCreateMaterial, useUpdateMaterial, useDeleteMaterial } from '../../hooks/useMaterialMutations'
 
 interface MaterialSheetProps {
@@ -76,6 +77,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
 
   // Delete confirmation dialog
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // Mutations
   const createMaterial = useCreateMaterial()
@@ -114,13 +116,27 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
   const handleDelete = async () => {
     if (!material) return
 
+    // Clear previous errors
+    setDeleteError(null)
+
     try {
       await deleteMaterial.mutateAsync(material.id)
       setShowDeleteDialog(false)
       handleClose()
     } catch (error) {
       console.error('Error deleting material:', error)
+      // Set error message for display
+      if (error instanceof Error) {
+        setDeleteError(error.message)
+      } else {
+        setDeleteError('Error inesperado al eliminar el material')
+      }
     }
+  }
+
+  const handleOpenDeleteDialog = () => {
+    setDeleteError(null)
+    setShowDeleteDialog(true)
   }
 
   const handleClose = () => {
@@ -310,7 +326,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
                   type="button"
                   variant="destructive"
                   size="icon"
-                  onClick={() => setShowDeleteDialog(true)}
+                  onClick={handleOpenDeleteDialog}
                   disabled={isPending}
                   className="sm:mr-auto"
                   title="Eliminar material"
@@ -333,8 +349,17 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
               permanentemente.
             </DialogDescription>
           </DialogHeader>
+
+          {/* Error Alert */}
+          {deleteError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{deleteError}</AlertDescription>
+            </Alert>
+          )}
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={isPending}>
               Cancelar
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
