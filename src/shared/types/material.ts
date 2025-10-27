@@ -1,7 +1,7 @@
 export interface Material {
   id: string
   code: string // Código del proveedor
-  uv?: string // Presentación del proveedor (ej: C/2, C/24)
+  itemsPerBox?: number // Items por caja (ej: 2, 10, 24)
   name: string
   description?: string
   unit: string // 'unidades', 'ml', etc.
@@ -19,7 +19,8 @@ export interface Material {
 export interface MaterialWithStats extends Material {
   availableSessions: number // Cuántas sesiones quedan con el stock actual
   needsOrder: boolean // Si está por debajo del mínimo
-  unitsToOrder: number // Cantidad de unidades a pedir
+  boxesToOrder: number // Cantidad de cajas a pedir (si itemsPerBox existe)
+  unitsToOrder: number // Cantidad de unidades a pedir (total real considerando cajas)
 }
 
 export interface InventoryLog {
@@ -50,7 +51,7 @@ export interface Order {
 export interface OrderItem {
   materialId: string
   code: string
-  uv?: string // Presentación del proveedor
+  uv?: string // Presentación del proveedor (formato string para Excel)
   description: string
   quantity: number
   unit: string

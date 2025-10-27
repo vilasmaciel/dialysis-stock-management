@@ -29,13 +29,13 @@ interface MaterialSheetProps {
 }
 
 const UNIT_OPTIONS = [
-  'unidades',
-  'cajas',
-  'pares',
-  'frascos',
   'bolsas',
-  'ml',
+  'cajas',
+  'frascos',
   'paquetes',
+  'pares',
+  'rollos',
+  'unidades',
 ]
 
 export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
@@ -43,7 +43,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
 
   // Form state
   const [code, setCode] = useState('')
-  const [uv, setUv] = useState('')
+  const [itemsPerBox, setItemsPerBox] = useState('')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
@@ -55,7 +55,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
   useEffect(() => {
     if (material) {
       setCode(material.code)
-      setUv(material.uv || '')
+      setItemsPerBox(material.itemsPerBox?.toString() || '')
       setName(material.name)
       setDescription(material.description || '')
       setPhotoUrl(material.photoUrl || '')
@@ -65,7 +65,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
     } else {
       // Reset to defaults when creating new material
       setCode('')
-      setUv('')
+      setItemsPerBox('')
       setName('')
       setDescription('')
       setPhotoUrl('')
@@ -89,7 +89,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
 
     const materialData = {
       code: code.trim(),
-      uv: uv.trim() || null,
+      uv: itemsPerBox.trim() ? Number.parseInt(itemsPerBox) : null,
       name: name.trim(),
       description: description.trim() || null,
       photo_url: photoUrl.trim() || null,
@@ -181,14 +181,17 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
                 />
               </div>
 
-              {/* UV / Presentation */}
+              {/* Items per box */}
               <div className="space-y-2">
-                <Label htmlFor="uv">UV / Presentación</Label>
+                <Label htmlFor="itemsPerBox">Items por caja</Label>
                 <Input
-                  id="uv"
-                  value={uv}
-                  onChange={(e) => setUv(e.target.value)}
-                  placeholder="ej: C/2, C/24"
+                  id="itemsPerBox"
+                  type="number"
+                  value={itemsPerBox}
+                  onChange={(e) => setItemsPerBox(e.target.value)}
+                  placeholder="ej: 2, 10, 24"
+                  min="1"
+                  step="1"
                 />
               </div>
 
@@ -258,9 +261,9 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
                 <Label htmlFor="unit">
                   Unidad <span className="text-destructive">*</span>
                 </Label>
-                <Select value={unit} onValueChange={setUnit}>
+                <Select key={`unit-select-${material?.id || 'new'}`} defaultValue={material?.unit || 'unidades'} onValueChange={setUnit}>
                   <SelectTrigger id="unit">
-                    <SelectValue />
+                    <SelectValue placeholder="Selecciona una unidad" />
                   </SelectTrigger>
                   <SelectContent>
                     {UNIT_OPTIONS.map((option) => (

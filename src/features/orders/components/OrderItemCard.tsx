@@ -19,10 +19,10 @@ export function OrderItemCard({ material, onRemove, showRemoveButton = true }: O
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>{material.code}</span>
-          {material.uv && (
+          {material.itemsPerBox && (
             <>
               <span>•</span>
-              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs">{material.uv}</span>
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs">{material.itemsPerBox} items/caja</span>
             </>
           )}
         </div>
@@ -42,10 +42,23 @@ export function OrderItemCard({ material, onRemove, showRemoveButton = true }: O
 
       <div className="ml-4 text-right">
         <div className="text-sm text-muted-foreground">A pedir</div>
-        <div className="text-2xl font-bold text-primary">
-          {material.unitsToOrder}
-        </div>
-        <div className="text-sm text-muted-foreground">{material.unit}</div>
+        {material.itemsPerBox && material.boxesToOrder > 0 ? (
+          <>
+            <div className="text-2xl font-bold text-primary">
+              {material.boxesToOrder} cajas
+            </div>
+            <div className="text-sm text-muted-foreground">
+              ({material.unitsToOrder} {material.unit})
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="text-2xl font-bold text-primary">
+              {material.unitsToOrder}
+            </div>
+            <div className="text-sm text-muted-foreground">{material.unit}</div>
+          </>
+        )}
         {showRemoveButton && onRemove && (
           <Button
             variant="ghost"

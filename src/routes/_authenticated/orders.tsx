@@ -57,7 +57,7 @@ function OrdersPage() {
     const orderItems: OrderItem[] = selectedItems.map((material) => ({
       materialId: material.id,
       code: material.code,
-      uv: material.uv,
+      uv: material.itemsPerBox ? `C/${material.itemsPerBox}` : undefined,
       description: material.name,
       quantity: material.unitsToOrder,
       unit: material.unit,

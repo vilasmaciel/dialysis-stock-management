@@ -29,7 +29,7 @@ export type SettingValue<K extends SettingKey> = K extends 'inventory_sessions'
 export interface MaterialWithCalculations {
   id: string
   code: string
-  uv: string | null
+  uv: number | null // Items per box
   name: string
   description: string | null
   unit: string
@@ -42,6 +42,7 @@ export interface MaterialWithCalculations {
   // Calculated fields
   available_sessions: number
   order_quantity: number
+  boxes_to_order: number
   needs_order: boolean // true if available_sessions < min_sessions
 }
 
@@ -56,12 +57,24 @@ export function calculateMaterialFields(
       : Math.floor(material.current_stock / material.usage_per_session)
 
   const sessions_needed = Math.max(0, config.max_sessions - available_sessions)
-  const order_quantity = sessions_needed * material.usage_per_session
+  const base_order_quantity = sessions_needed * material.usage_per_session
+
+  // Calculate boxes if itemsPerBox is defined
+  let boxes_to_order = 0
+  let order_quantity = base_order_quantity
+
+  if (material.uv && material.uv > 0) {
+    // Calculate number of boxes needed (round up to get complete boxes)
+    boxes_to_order = Math.ceil(base_order_quantity / material.uv)
+    // Recalculate actual units considering complete boxes
+    order_quantity = boxes_to_order * material.uv
+  }
 
   return {
     ...material,
     available_sessions,
     order_quantity,
+    boxes_to_order,
     needs_order: available_sessions < config.min_sessions,
   }
 }

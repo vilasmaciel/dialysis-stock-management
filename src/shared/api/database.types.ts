@@ -7,7 +7,7 @@ export interface Database {
         Row: {
           id: string
           code: string
-          uv: string | null
+          uv: number | null // Items per box
           name: string
           description: string | null
           unit: string
@@ -21,7 +21,7 @@ export interface Database {
         Insert: {
           id?: string
           code: string
-          uv?: string | null
+          uv?: number | null // Items per box
           name: string
           description?: string | null
           unit: string
@@ -35,7 +35,7 @@ export interface Database {
         Update: {
           id?: string
           code?: string
-          uv?: string | null
+          uv?: number | null // Items per box
           name?: string
           description?: string | null
           unit?: string

@@ -64,10 +64,10 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{material.code}</span>
-            {material.uv && (
+            {material.itemsPerBox && (
               <>
                 <span>•</span>
-                <span className="rounded bg-gray-100 px-2 py-0.5 text-xs">{material.uv}</span>
+                <span className="rounded bg-gray-100 px-2 py-0.5 text-xs">{material.itemsPerBox} items/caja</span>
               </>
             )}
           </div>
@@ -104,7 +104,11 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
         <div className="mt-4 flex items-center gap-2 rounded-md bg-muted p-2 text-sm text-destructive">
           <AlertTriangle className="h-4 w-4" />
           <span>
-            Se necesita pedir: <strong>{material.unitsToOrder} {material.unit}</strong>
+            Se necesita pedir: {material.itemsPerBox && material.boxesToOrder > 0 ? (
+              <strong>{material.boxesToOrder} cajas ({material.unitsToOrder} {material.unit})</strong>
+            ) : (
+              <strong>{material.unitsToOrder} {material.unit}</strong>
+            )}
           </span>
         </div>
       )}

@@ -63,7 +63,7 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
           <h2 className="text-2xl font-bold">{material.name}</h2>
           <p className="text-muted-foreground">
             {material.code}
-            {material.uv && ` • ${material.uv}`} • Uso: {material.usagePerSession}{' '}
+            {material.itemsPerBox && ` • ${material.itemsPerBox} items/caja`} • Uso: {material.usagePerSession}{' '}
             {material.unit}/sesión
           </p>
           <p className="text-sm text-muted-foreground mt-2">

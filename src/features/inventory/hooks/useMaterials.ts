@@ -28,7 +28,7 @@ export function useMaterials() {
         return {
           id: material.id,
           code: material.code,
-          uv: material.uv || undefined,
+          itemsPerBox: material.uv || undefined,
           name: material.name,
           description: material.description || undefined,
           unit: material.unit,
@@ -43,6 +43,7 @@ export function useMaterials() {
           updatedAt: material.updated_at,
           availableSessions: materialWithCalc.available_sessions,
           needsOrder: materialWithCalc.needs_order,
+          boxesToOrder: materialWithCalc.boxes_to_order,
           unitsToOrder: Math.max(0, materialWithCalc.order_quantity),
         }
       })
@@ -81,7 +82,7 @@ export function useMaterial(id: string) {
       const material: MaterialWithStats = {
         id: data.id,
         code: data.code,
-        uv: data.uv || undefined,
+        itemsPerBox: data.uv || undefined,
         name: data.name,
         description: data.description || undefined,
         unit: data.unit,
@@ -96,6 +97,7 @@ export function useMaterial(id: string) {
         updatedAt: data.updated_at,
         availableSessions: materialWithCalc.available_sessions,
         needsOrder: materialWithCalc.needs_order,
+        boxesToOrder: materialWithCalc.boxes_to_order,
         unitsToOrder: Math.max(0, materialWithCalc.order_quantity),
       }
 

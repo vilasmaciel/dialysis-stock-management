@@ -79,7 +79,7 @@ export function ItemEditor({ material, open, onOpenChange }: ItemEditorProps) {
           <DialogTitle className="text-2xl">{material.name}</DialogTitle>
           <DialogDescription>
             {material.code}
-            {material.uv && ` • ${material.uv}`} • {material.unit}
+            {material.itemsPerBox && ` • ${material.itemsPerBox} items/caja`} • {material.unit}
           </DialogDescription>
         </DialogHeader>
 
