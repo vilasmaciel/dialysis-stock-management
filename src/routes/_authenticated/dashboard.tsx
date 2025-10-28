@@ -4,6 +4,7 @@ import { useMaterials } from '#/features/inventory/hooks/useMaterials'
 import { MaterialRow } from '#/features/inventory/components/MaterialRow/MaterialRow'
 import { PageHeader } from '#/shared/components/PageHeader'
 import { Button } from '#/shared/components/ui/button'
+import { Alert, AlertTitle } from '#/shared/components/ui/alert'
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: DashboardPage,
@@ -66,17 +67,12 @@ function DashboardPage() {
 
       {/* Low Stock Alert */}
       {lowStockCount > 0 && (
-        <div className="mb-6 rounded-lg border-l-4 border-destructive bg-muted p-4">
-          <p className="font-semibold text-destructive">
-            <span className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              {lowStockCount} material{lowStockCount !== 1 ? 'es' : ''} con stock bajo
-            </span>
-          </p>
-          <p className="text-sm text-destructive/80">
-            Estos materiales necesitan ser pedidos pronto
-          </p>
-        </div>
+        <Alert variant="destructive" className="mb-6 border-l-4 bg-destructive/10 flex items-center [&>svg]:relative [&>svg]:top-0 [&>svg]:left-0 [&>svg~*]:pl-2">
+          <AlertTriangle className="h-5 w-5" />
+          <AlertTitle className="text-base font-semibold mb-0">
+            {lowStockCount} material{lowStockCount !== 1 ? 'es' : ''} con stock bajo
+          </AlertTitle>
+        </Alert>
       )}
 
       {/* Materials List */}
