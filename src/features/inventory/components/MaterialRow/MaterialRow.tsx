@@ -9,9 +9,10 @@ import { useAuth } from '#/shared/contexts/AuthContext'
 
 interface MaterialRowProps {
   material: MaterialWithStats
+  onOpenDetail?: () => void
 }
 
-export function MaterialRow({ material }: MaterialRowProps) {
+export function MaterialRow({ material, onOpenDetail }: MaterialRowProps) {
   const [quantity, setQuantity] = useState(material.currentStock)
   const { user } = useAuth()
   const { mutate: updateStock, isPending } = useUpdateMaterialStock()
@@ -78,43 +79,49 @@ export function MaterialRow({ material }: MaterialRowProps) {
     >
       {/* Desktop layout: horizontal */}
       <div className="hidden sm:flex items-center gap-3">
-        {/* Image/Placeholder */}
-        {material.photoUrl ? (
-          <img
-            src={material.photoUrl}
-            alt={material.name}
-            className="h-24 w-24 rounded object-cover flex-shrink-0"
-          />
-        ) : (
-          <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded bg-muted">
-            <Package className="h-12 w-12 text-muted-foreground" />
-          </div>
-        )}
-
-        {/* Material Info */}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-base truncate">{material.name}</h3>
-
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
-            <span
-              className={cn(
-                'font-semibold',
-                statusColor === 'green' ? 'text-primary' : 'text-destructive'
-              )}
-            >
-              {material.availableSessions} sesiones
-            </span>
-          </div>
-
-          {/* Description - Always visible */}
-          {material.description && (
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-              {material.description}
-            </p>
+        {/* Clickable area: Image + Material Info */}
+        <div
+          className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+          onClick={onOpenDetail}
+        >
+          {/* Image/Placeholder */}
+          {material.photoUrl ? (
+            <img
+              src={material.photoUrl}
+              alt={material.name}
+              className="h-24 w-24 rounded object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded bg-muted">
+              <Package className="h-12 w-12 text-muted-foreground" />
+            </div>
           )}
+
+          {/* Material Info */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-base truncate">{material.name}</h3>
+
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
+              <span
+                className={cn(
+                  'font-semibold',
+                  statusColor === 'green' ? 'text-primary' : 'text-destructive'
+                )}
+              >
+                {material.availableSessions} sesiones
+              </span>
+            </div>
+
+            {/* Description - Always visible */}
+            {material.description && (
+              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                {material.description}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Stock Controls */}
+        {/* Stock Controls (not clickable for detail) */}
         <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
           <div className="flex items-center gap-1">
             <Button
@@ -155,45 +162,48 @@ export function MaterialRow({ material }: MaterialRowProps) {
 
       {/* Mobile layout: vertical */}
       <div className="sm:hidden space-y-2">
-        {/* Header with image and name */}
-        <div className="flex items-center gap-2">
-          {/* Image/Placeholder */}
-          {material.photoUrl ? (
-            <img
-              src={material.photoUrl}
-              alt={material.name}
-              className="h-24 w-24 rounded object-cover flex-shrink-0"
-            />
-          ) : (
-            <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded bg-muted">
-              <Package className="h-12 w-12 text-muted-foreground" />
-            </div>
-          )}
+        {/* Clickable area: Header with image and name + Description */}
+        <div className="space-y-2 cursor-pointer" onClick={onOpenDetail}>
+          {/* Header with image and name */}
+          <div className="flex items-center gap-2">
+            {/* Image/Placeholder */}
+            {material.photoUrl ? (
+              <img
+                src={material.photoUrl}
+                alt={material.name}
+                className="h-24 w-24 rounded object-cover flex-shrink-0"
+              />
+            ) : (
+              <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded bg-muted">
+                <Package className="h-12 w-12 text-muted-foreground" />
+              </div>
+            )}
 
-          {/* Material Info */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-base">{material.name}</h3>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
-              <span
-                className={cn(
-                  'font-semibold',
-                  statusColor === 'green' ? 'text-primary' : 'text-destructive'
-                )}
-              >
-                {material.availableSessions} sesiones
-              </span>
+            {/* Material Info */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base">{material.name}</h3>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
+                <span
+                  className={cn(
+                    'font-semibold',
+                    statusColor === 'green' ? 'text-primary' : 'text-destructive'
+                  )}
+                >
+                  {material.availableSessions} sesiones
+                </span>
+              </div>
             </div>
           </div>
+
+          {/* Description - Always visible - Mobile */}
+          {material.description && (
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {material.description}
+            </p>
+          )}
         </div>
 
-        {/* Description - Always visible - Mobile */}
-        {material.description && (
-          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-            {material.description}
-          </p>
-        )}
-
-        {/* Stock Controls - Full width */}
+        {/* Stock Controls - Full width (not clickable for detail) */}
         <div className="flex flex-col items-center gap-0.5">
           <div className="flex items-center gap-1">
             <Button

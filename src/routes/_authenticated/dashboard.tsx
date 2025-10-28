@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Loader2, AlertCircle, PackageX, Plus, AlertTriangle, ClipboardCheck, ShoppingCart } from 'lucide-react'
 import { useMaterials } from '#/features/inventory/hooks/useMaterials'
 import { MaterialRow } from '#/features/inventory/components/MaterialRow/MaterialRow'
+import { MaterialDetailSheet } from '#/features/inventory/components/MaterialDetailSheet/MaterialDetailSheet'
 import { PageHeader } from '#/shared/components/PageHeader'
 import { Button } from '#/shared/components/ui/button'
 import { Alert, AlertTitle } from '#/shared/components/ui/alert'
+import type { MaterialWithStats } from '#/shared/types/material'
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: DashboardPage,
@@ -12,6 +15,19 @@ export const Route = createFileRoute('/_authenticated/dashboard')({
 
 function DashboardPage() {
   const { data: materials, isLoading, error } = useMaterials()
+  const [selectedMaterial, setSelectedMaterial] = useState<MaterialWithStats | null>(null)
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false)
+
+  const handleOpenDetail = (material: MaterialWithStats) => {
+    setSelectedMaterial(material)
+    setDetailSheetOpen(true)
+  }
+
+  const handleCloseDetail = () => {
+    setDetailSheetOpen(false)
+    // Small delay before clearing to allow sheet animation to complete
+    setTimeout(() => setSelectedMaterial(null), 300)
+  }
 
   if (isLoading) {
     return (
@@ -93,10 +109,21 @@ function DashboardPage() {
       ) : (
         <div className="space-y-2">
           {materials.map((material) => (
-            <MaterialRow key={material.id} material={material} />
+            <MaterialRow
+              key={material.id}
+              material={material}
+              onOpenDetail={() => handleOpenDetail(material)}
+            />
           ))}
         </div>
       )}
+
+      {/* Material Detail Sheet */}
+      <MaterialDetailSheet
+        material={selectedMaterial}
+        open={detailSheetOpen}
+        onClose={handleCloseDetail}
+      />
     </div>
   )
 }
