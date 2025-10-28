@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ShoppingCart, Loader2, ArrowLeft, Package, CheckCircle, FileSpreadsheet, Loader } from 'lucide-react'
+import { ShoppingCart, Loader2, ArrowLeft, Package, CheckCircle, FileSpreadsheet, Loader, Mail, Phone } from 'lucide-react'
 import { useMaterials } from '#/features/inventory/hooks/useMaterials'
 import { useCreateOrder } from '#/features/orders/hooks/useOrders'
 import { OrderItemCard } from '#/features/orders/components/OrderItemCard'
 import { exportToExcel } from '#/features/orders/utils/excelExport'
 import { Button } from '#/shared/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '#/shared/components/ui/alert'
+import { CopyableEmail } from '#/shared/components/CopyableEmail'
 import { useAuth } from '#/shared/contexts/AuthContext'
 import type { OrderItem } from '#/shared/types'
 
@@ -116,6 +118,24 @@ function OrdersPage() {
       </header>
 
       <div className="container mx-auto p-6">
+        {/* Contact Info Card */}
+        <Alert className="mb-6 border-accent bg-accent/5">
+          <Mail className="h-4 w-4" />
+          <AlertTitle className="mb-2">Enviar Pedido</AlertTitle>
+          <AlertDescription className="space-y-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+              <CopyableEmail email="hemodialisisencasa@palex.es" showIcon={false} />
+              <a
+                href="tel:900180135"
+                className="inline-flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors group"
+              >
+                <Phone className="h-4 w-4" />
+                <span className="font-medium group-hover:underline">900 180 135</span>
+              </a>
+            </div>
+          </AlertDescription>
+        </Alert>
+
         {materialsToOrder.length === 0 ? (
           <Card>
             <CardHeader>

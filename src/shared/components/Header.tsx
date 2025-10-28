@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { History, Settings, LogOut, ChevronDown } from 'lucide-react'
+import { History, Settings, LogOut, ChevronDown, Info } from 'lucide-react'
 import { useAuth } from '#/shared/contexts/AuthContext'
 import {
   DropdownMenu,
@@ -20,15 +20,24 @@ export function Header() {
       <div className="container mx-auto flex items-center justify-between p-4">
         {/* Logo */}
         <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <img 
-            src="/icon-192x192.png" 
-            alt="Dialysis Stock Management" 
+          <img
+            src="/icon-192x192.png"
+            alt="Dialysis Stock Management"
             className="h-10 w-10"
           />
           <span className="hidden sm:inline text-lg font-semibold">DialyStock</span>
         </Link>
 
-        {/* User Menu */}
+        {/* Right side: Info button + User Menu */}
+        <div className="flex items-center gap-2">
+          {/* Info Button */}
+          <Link to="/info">
+            <Button variant="ghost" size="icon" title="Información y contactos">
+              <Info className="h-5 w-5" />
+            </Button>
+          </Link>
+
+          {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2">
@@ -71,6 +80,7 @@ export function Header() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
     </header>
   )

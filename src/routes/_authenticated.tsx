@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { Header } from '#/shared/components/Header'
+import { Toaster } from '#/shared/components/ui/sonner'
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ context }) => {
@@ -16,6 +17,7 @@ function AuthenticatedLayout() {
     <div className="min-h-screen bg-background">
       <Header />
       <Outlet />
+      <Toaster />
     </div>
   )
 }
