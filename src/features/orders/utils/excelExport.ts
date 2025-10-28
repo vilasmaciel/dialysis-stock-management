@@ -3,71 +3,91 @@ import type { OrderItem } from '#/shared/types'
 
 export interface ExcelExportOptions {
   orderNumber: string
-  orderDate: string
-  userName: string
   items: OrderItem[]
-  includeHeader?: boolean
   sheetName?: string
 }
 
 /**
- * Genera y descarga un archivo Excel con el pedido
- * Este formato es genérico y puede ser personalizado según las necesidades del proveedor
+ * Calcula el número de cajas a partir del formato UV y la cantidad total
+ * @param uv - Formato "C/X" donde X es el número de items por caja (ej: "C/24")
+ * @param quantity - Cantidad total de unidades
+ * @returns Número de cajas necesarias (redondeado hacia arriba)
+ */
+function calculateBoxes(uv: string | undefined, quantity: number): number {
+  if (!uv || !uv.includes('/')) {
+    return quantity
+  }
+
+  const itemsPerBox = parseInt(uv.split('/')[1])
+  if (isNaN(itemsPerBox) || itemsPerBox === 0) {
+    return quantity
+  }
+
+  return Math.ceil(quantity / itemsPerBox)
+}
+
+/**
+ * Genera y descarga un archivo Excel con el formato de la plantilla CVC
+ * Formato: Fungibles | CÓDIGO | UV | DESCRIPCIÓN | Cantidad | Lote / Nº serie
  */
 export function exportToExcel(options: ExcelExportOptions) {
-  const {
-    orderNumber,
-    orderDate,
-    userName,
-    items,
-    includeHeader = true,
-    sheetName = 'Pedido',
-  } = options
+  const { orderNumber, items, sheetName = 'Fungibles' } = options
 
   // Crear datos para el Excel
   const data: any[] = []
 
-  // Opcional: Agregar encabezado con información del pedido
-  if (includeHeader) {
-    data.push(['PEDIDO DE MATERIAL DE DIÁLISIS'])
-    data.push([])
-    data.push(['Número de Pedido:', orderNumber])
-    data.push(['Fecha:', orderDate])
-    data.push(['Solicitado por:', userName])
-    data.push([])
-  }
+  // Fila 1: Encabezado "Fungibles" (se extenderá por merge)
+  data.push(['Fungibles'])
 
-  // Encabezados de columnas
-  data.push(['Código', 'Presentación', 'Descripción', 'Cantidad', 'Unidad', 'Notas'])
+  // Fila 2: Encabezados de columnas
+  data.push(['CÓDIGO', 'UV', 'DESCRIPCIÓN', 'Cantidad', 'Lote / Nº serie'])
 
-  // Agregar items
+  // Filas de datos: agregar items
   items.forEach((item) => {
+    const boxes = calculateBoxes(item.uv, item.quantity)
     data.push([
       item.code,
       item.uv || '',
       item.description,
-      item.quantity,
-      item.unit,
-      item.notes || '',
+      boxes,
+      '', // Lote / Nº serie - siempre vacío
     ])
   })
-
-  // Agregar totales
-  data.push([])
-  data.push(['TOTAL DE ITEMS:', items.length])
 
   // Crear workbook y worksheet
   const worksheet = XLSX.utils.aoa_to_sheet(data)
 
+  // Merge de la primera fila (Fungibles) para que abarque todas las columnas
+  worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }]
+
   // Establecer ancho de columnas
   worksheet['!cols'] = [
-    { wch: 12 }, // Código
-    { wch: 12 }, // Presentación
-    { wch: 40 }, // Descripción
-    { wch: 12 }, // Cantidad
-    { wch: 10 }, // Unidad
-    { wch: 25 }, // Notas
+    { wch: 10 }, // CÓDIGO
+    { wch: 8 },  // UV
+    { wch: 50 }, // DESCRIPCIÓN
+    { wch: 10 }, // Cantidad
+    { wch: 15 }, // Lote / Nº serie
   ]
+
+  // Aplicar estilos a las celdas de encabezado
+  // Fila 1: Fungibles (bold)
+  if (worksheet['A1']) {
+    worksheet['A1'].s = {
+      font: { bold: true },
+      alignment: { horizontal: 'center', vertical: 'center' },
+    }
+  }
+
+  // Fila 2: Encabezados de columnas (bold)
+  const headerCells = ['A2', 'B2', 'C2', 'D2', 'E2']
+  headerCells.forEach((cell) => {
+    if (worksheet[cell]) {
+      worksheet[cell].s = {
+        font: { bold: true },
+        alignment: { horizontal: 'center', vertical: 'center' },
+      }
+    }
+  })
 
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
@@ -77,14 +97,4 @@ export function exportToExcel(options: ExcelExportOptions) {
   XLSX.writeFile(workbook, filename)
 
   return filename
-}
-
-/**
- * Formato personalizado para un proveedor específico
- * Puedes crear múltiples funciones como esta para diferentes proveedores
- */
-export function exportToExcelCustomFormat(options: ExcelExportOptions) {
-  // TODO: Implementar formato específico del proveedor
-  // Por ahora usa el formato genérico
-  return exportToExcel(options)
 }

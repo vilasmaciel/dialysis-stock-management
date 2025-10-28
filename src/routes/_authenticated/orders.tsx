@@ -11,17 +11,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/sha
 import { Alert, AlertDescription, AlertTitle } from '#/shared/components/ui/alert'
 import { CopyableEmail } from '#/shared/components/CopyableEmail'
 import { useAuth } from '#/shared/contexts/AuthContext'
-import type { OrderItem } from '#/shared/types'
+import type { OrderItem, MaterialWithStats } from '#/shared/types'
 
 export const Route = createFileRoute('/_authenticated/orders')({
   component: OrdersPage,
 })
 
+/**
+ * Calcula el número inicial de cajas a pedir para un material
+ */
+function calculateInitialBoxes(material: MaterialWithStats): number {
+  if (!material.itemsPerBox) {
+    return material.unitsToOrder
+  }
+  return Math.ceil(material.unitsToOrder / material.itemsPerBox)
+}
+
 function OrdersPage() {
   const { data: materials, isLoading } = useMaterials()
   const { mutate: createOrder, isPending: isCreatingOrder } = useCreateOrder()
   const { user } = useAuth()
-  const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(new Set())
+  const [orderQuantities, setOrderQuantities] = useState<Map<string, number>>(new Map())
 
   if (isLoading) {
     return (
@@ -37,34 +47,59 @@ function OrdersPage() {
   // Filter materials that need order
   const materialsToOrder = materials?.filter((m) => m.needsOrder) || []
 
-  // Initially select all materials that need order
-  if (selectedMaterials.size === 0 && materialsToOrder.length > 0) {
-    setSelectedMaterials(new Set(materialsToOrder.map((m) => m.id)))
+  // Initially select all materials with calculated quantities
+  if (orderQuantities.size === 0 && materialsToOrder.length > 0) {
+    const initialQuantities = new Map<string, number>()
+    materialsToOrder.forEach((material) => {
+      initialQuantities.set(material.id, calculateInitialBoxes(material))
+    })
+    setOrderQuantities(initialQuantities)
   }
 
-  const selectedItems = materialsToOrder.filter((m) => selectedMaterials.has(m.id))
+  // Selected items are those with quantity > 0
+  const selectedItems = materialsToOrder.filter(
+    (m) => orderQuantities.has(m.id) && (orderQuantities.get(m.id) || 0) > 0
+  )
 
   const handleToggleMaterial = (materialId: string) => {
-    const newSet = new Set(selectedMaterials)
-    if (newSet.has(materialId)) {
-      newSet.delete(materialId)
+    const newQuantities = new Map(orderQuantities)
+    if (newQuantities.has(materialId) && (newQuantities.get(materialId) || 0) > 0) {
+      // Deselect: set quantity to 0
+      newQuantities.set(materialId, 0)
     } else {
-      newSet.add(materialId)
+      // Select: set to initial calculated quantity
+      const material = materialsToOrder.find((m) => m.id === materialId)
+      if (material) {
+        newQuantities.set(materialId, calculateInitialBoxes(material))
+      }
     }
-    setSelectedMaterials(newSet)
+    setOrderQuantities(newQuantities)
+  }
+
+  const handleQuantityChange = (materialId: string, boxes: number) => {
+    const newQuantities = new Map(orderQuantities)
+    newQuantities.set(materialId, Math.max(0, boxes))
+    setOrderQuantities(newQuantities)
   }
 
   const handleGenerateOrder = () => {
     if (!user || selectedItems.length === 0) return
 
-    const orderItems: OrderItem[] = selectedItems.map((material) => ({
-      materialId: material.id,
-      code: material.code,
-      uv: material.itemsPerBox ? `C/${material.itemsPerBox}` : undefined,
-      description: material.name,
-      quantity: material.unitsToOrder,
-      unit: material.unit,
-    }))
+    // Convert Map entries to OrderItems, converting boxes to units
+    const orderItems: OrderItem[] = Array.from(orderQuantities.entries())
+      .filter(([_, boxes]) => boxes > 0)
+      .map(([materialId, boxes]) => {
+        const material = materialsToOrder.find((m) => m.id === materialId)!
+        const units = material.itemsPerBox ? boxes * material.itemsPerBox : boxes
+        return {
+          materialId,
+          code: material.code,
+          uv: material.itemsPerBox ? `C/${material.itemsPerBox}` : undefined,
+          description: material.name,
+          quantity: units,
+          unit: material.unit,
+        }
+      })
 
     // Create order in database
     createOrder(
@@ -79,16 +114,26 @@ function OrdersPage() {
           // Export to Excel
           exportToExcel({
             orderNumber,
-            orderDate: new Date().toLocaleDateString('es-ES'),
-            userName: user.user_metadata?.full_name || user.email || 'Usuario',
             items: orderItems,
           })
 
-          // Reset selection
-          setSelectedMaterials(new Set())
+          // Reset quantities
+          setOrderQuantities(new Map())
         },
       }
     )
+  }
+
+  const handleSelectAll = () => {
+    const newQuantities = new Map<string, number>()
+    materialsToOrder.forEach((material) => {
+      newQuantities.set(material.id, calculateInitialBoxes(material))
+    })
+    setOrderQuantities(newQuantities)
+  }
+
+  const handleClearSelection = () => {
+    setOrderQuantities(new Map())
   }
 
   return (
@@ -142,8 +187,8 @@ function OrdersPage() {
         </Card>
       ) : (
         <div className="space-y-6">
-          {/* Resumen */}
-          <Card>
+          {/* Resumen - Solo visible en Desktop */}
+          <Card className="hidden sm:block">
             <CardHeader>
               <CardTitle>Resumen del Pedido</CardTitle>
               <CardDescription>
@@ -152,7 +197,7 @@ function OrdersPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-lg bg-muted p-4 text-center">
                   <div className="text-3xl font-bold text-destructive">{materialsToOrder.length}</div>
                   <div className="text-sm text-destructive">Necesitan pedido</div>
@@ -161,49 +206,58 @@ function OrdersPage() {
                   <div className="text-3xl font-bold text-accent">{selectedItems.length}</div>
                   <div className="text-sm text-accent/80">Seleccionados</div>
                 </div>
-                <div className="rounded-lg bg-muted p-4 text-center">
-                  <div className="text-3xl font-bold text-primary">
-                    {selectedItems.reduce((sum, m) => sum + m.unitsToOrder, 0).toFixed(0)}
-                  </div>
-                  <div className="text-sm text-primary">Unidades totales</div>
-                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Lista de materiales */}
           <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Materiales a Pedir</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setSelectedMaterials(new Set(materialsToOrder.map((m) => m.id)))
-                  }
-                >
+            {/* Resumen compacto - Solo visible en Móvil */}
+            <div className="mb-4 sm:hidden">
+              <p className="text-sm text-muted-foreground text-center">
+                {materialsToOrder.length} material{materialsToOrder.length !== 1 ? 'es' : ''} necesitan pedido
+                {' • '}
+                <span className="font-medium text-foreground">
+                  {selectedItems.length} seleccionado{selectedItems.length !== 1 ? 's' : ''}
+                </span>
+              </p>
+            </div>
+
+            <div className="mb-4">
+              {/* Título + Botones Desktop */}
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-xl font-semibold">Materiales a Pedir</h2>
+                <div className="hidden sm:flex gap-2">
+                  <Button variant="outline" size="sm" onClick={handleSelectAll}>
+                    Seleccionar todos
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleClearSelection}>
+                    Limpiar selección
+                  </Button>
+                </div>
+              </div>
+
+              {/* Botones Móvil */}
+              <div className="flex sm:hidden gap-2 mb-3">
+                <Button variant="outline" size="sm" onClick={handleSelectAll} className="flex-1">
                   Seleccionar todos
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setSelectedMaterials(new Set())}>
-                  Limpiar selección
+                <Button variant="outline" size="sm" onClick={handleClearSelection} className="flex-1">
+                  Limpiar
                 </Button>
               </div>
             </div>
 
             <div className="space-y-3">
               {materialsToOrder.map((material) => (
-                <div key={material.id} className="relative">
-                  <input
-                    type="checkbox"
-                    checked={selectedMaterials.has(material.id)}
-                    onChange={() => handleToggleMaterial(material.id)}
-                    className="absolute left-4 top-4 h-5 w-5 cursor-pointer"
-                  />
-                  <div className="pl-12">
-                    <OrderItemCard material={material} showRemoveButton={false} />
-                  </div>
-                </div>
+                <OrderItemCard
+                  key={material.id}
+                  material={material}
+                  isSelected={(orderQuantities.get(material.id) || 0) > 0}
+                  quantity={orderQuantities.get(material.id) || 0}
+                  onToggle={() => handleToggleMaterial(material.id)}
+                  onQuantityChange={(boxes) => handleQuantityChange(material.id, boxes)}
+                />
               ))}
             </div>
           </div>
