@@ -10,7 +10,7 @@ export default defineConfig({
     TanStackRouterVite(),
     react(),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
         name: 'Control Material Diálisis',
@@ -43,6 +43,9 @@ export default defineConfig({
       workbox: {
         // No cache offline for now - app works only online
         runtimeCaching: [],
+        // Skip waiting and claim clients immediately for faster updates
+        skipWaiting: true,
+        clientsClaim: true,
       },
     }),
   ],
