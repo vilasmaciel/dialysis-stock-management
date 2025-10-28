@@ -5,6 +5,7 @@ import { useMaterials } from '#/features/inventory/hooks/useMaterials'
 import { useSetting, useUpdateSetting } from '#/shared/hooks/useSettings'
 import { MaterialSheet } from '#/features/inventory/components/MaterialSheet/MaterialSheet'
 import { MaterialSettingsRow } from '#/features/inventory/components/MaterialSettingsRow/MaterialSettingsRow'
+import { PageHeader } from '#/shared/components/PageHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/shared/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/components/ui/card'
 import { Button } from '#/shared/components/ui/button'
@@ -71,15 +72,13 @@ function SettingsPage() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6">
-      <div className="mb-6">
-        <h1 className="flex items-center gap-2 text-2xl font-bold">
-          <SettingsIcon className="h-6 w-6" />
-          Configuración
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Gestiona materiales y preferencias del sistema
-        </p>
-      </div>
+      <PageHeader
+        title="Configuración"
+        subtitle="Gestiona materiales y preferencias del sistema"
+        icon={<SettingsIcon className="h-6 w-6" />}
+        showBack={true}
+        backTo="/dashboard"
+      />
 
       <Tabs defaultValue="materials" className="w-full">
         <TabsList className="grid w-full grid-cols-2">

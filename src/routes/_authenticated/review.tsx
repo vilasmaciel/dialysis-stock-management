@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ClipboardList, Loader2, PackageX, ArrowLeft, X } from 'lucide-react'
+import { ClipboardList, Loader2, PackageX, ArrowLeft } from 'lucide-react'
 import { useMaterials, useUpdateMaterialStock } from '#/features/inventory/hooks/useMaterials'
 import { useReviewSession } from '#/features/review/hooks/useReviewSession'
 import { ReviewCard } from '#/features/review/components/ReviewCard'
 import { ReviewSummary } from '#/features/review/components/ReviewSummary'
+import { PageHeader } from '#/shared/components/PageHeader'
 import { Button } from '#/shared/components/ui/button'
 import { useAuth } from '#/shared/contexts/AuthContext'
 
@@ -96,63 +97,44 @@ function ReviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto flex items-center justify-between p-4">
-          <div>
-            <h1 className="flex items-center gap-2 text-2xl font-bold">
-              <ClipboardList className="h-6 w-6" />
-              Revisión de Stock
-            </h1>
-            {!isComplete && (
-              <p className="text-sm text-muted-foreground">
-                Material {currentIndex + 1} de {totalItems}
-              </p>
-            )}
-          </div>
-          <Link to="/dashboard">
-            <Button variant="ghost">
-              <X className="mr-2 h-4 w-4" />
-              Cancelar
-            </Button>
-          </Link>
-        </div>
-      </header>
+    <div className="container mx-auto p-6">
+      <PageHeader
+        title="Revisión de Stock"
+        subtitle={!isComplete ? `Material ${currentIndex + 1} de ${totalItems}` : undefined}
+        icon={<ClipboardList className="h-6 w-6" />}
+        showBack={true}
+        backTo="/dashboard"
+      />
 
       {/* Progress Bar */}
       {!isComplete && (
-        <div className="bg-card">
-          <div className="container mx-auto px-4 pb-4">
-            <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-              <div
-                className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+        <div className="mb-6">
+          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+            <div
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
       )}
 
       {/* Content */}
-      <div className="container mx-auto p-6">
-        {!isComplete ? (
-          <ReviewCard
-            material={currentMaterial}
-            onConfirm={markAsReviewed}
-            onBack={goToPrevious}
-            isFirst={currentIndex === 0}
-            isLast={isLastItem}
-          />
-        ) : (
-          <ReviewSummary
-            reviewedItems={reviewedItems}
-            onSave={handleSaveAll}
-            onCancel={() => navigate({ to: '/dashboard' })}
-            isSaving={isSaving}
-          />
-        )}
-      </div>
+      {!isComplete ? (
+        <ReviewCard
+          material={currentMaterial}
+          onConfirm={markAsReviewed}
+          onBack={goToPrevious}
+          isFirst={currentIndex === 0}
+          isLast={isLastItem}
+        />
+      ) : (
+        <ReviewSummary
+          reviewedItems={reviewedItems}
+          onSave={handleSaveAll}
+          onCancel={() => navigate({ to: '/dashboard' })}
+          isSaving={isSaving}
+        />
+      )}
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { History, Clock } from 'lucide-react'
+import { PageHeader } from '#/shared/components/PageHeader'
 
 export const Route = createFileRoute('/_authenticated/historial')({
   component: HistorialPage,
@@ -8,15 +9,13 @@ export const Route = createFileRoute('/_authenticated/historial')({
 function HistorialPage() {
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="flex items-center gap-2 text-2xl font-bold">
-          <History className="h-6 w-6" />
-          Historial
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Ver registro de cambios en el inventario
-        </p>
-      </div>
+      <PageHeader
+        title="Historial"
+        subtitle="Ver registro de cambios en el inventario"
+        icon={<History className="h-6 w-6" />}
+        showBack={true}
+        backTo="/dashboard"
+      />
 
       <div className="flex min-h-[400px] items-center justify-center rounded-lg border-2 border-dashed">
         <div className="text-center">

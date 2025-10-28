@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { Loader2, AlertCircle, PackageX, Plus, AlertTriangle, ClipboardCheck, ShoppingCart } from 'lucide-react'
 import { useMaterials } from '#/features/inventory/hooks/useMaterials'
 import { MaterialRow } from '#/features/inventory/components/MaterialRow/MaterialRow'
+import { PageHeader } from '#/shared/components/PageHeader'
 import { Button } from '#/shared/components/ui/button'
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
@@ -42,29 +43,26 @@ function DashboardPage() {
 
   return (
     <div className="container mx-auto p-6">
-      {/* Action Buttons */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-center sm:text-left">
-          <h1 className="text-2xl font-bold">Inventario de Materiales</h1>
-          <p className="text-sm text-muted-foreground">
-            Gestiona el stock de materiales de diálisis
-          </p>
-        </div>
-        <div className="flex gap-2 justify-center sm:justify-start">
-          <Link to="/review">
-            <Button variant="outline">
-              <ClipboardCheck className="mr-2 h-4 w-4" />
-              Registrar Stock
-            </Button>
-          </Link>
-          <Link to="/orders">
-            <Button variant="default">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Generar Pedido
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title="Inventario de Materiales"
+        subtitle="Gestiona el stock de materiales de diálisis"
+        actions={
+          <div className="hidden sm:flex gap-2">
+            <Link to="/review">
+              <Button variant="outline">
+                <ClipboardCheck className="mr-2 h-4 w-4" />
+                Registrar Stock
+              </Button>
+            </Link>
+            <Link to="/orders">
+              <Button variant="default">
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Generar Pedido
+              </Button>
+            </Link>
+          </div>
+        }
+      />
 
       {/* Low Stock Alert */}
       {lowStockCount > 0 && (

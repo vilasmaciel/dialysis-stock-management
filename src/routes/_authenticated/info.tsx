@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Info, Phone, Clock, User } from 'lucide-react'
+import { PageHeader } from '#/shared/components/PageHeader'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/components/ui/card'
 import { CopyableEmail } from '#/shared/components/CopyableEmail'
 
@@ -125,16 +126,13 @@ function ContactCard({ contact }: { contact: Contact }) {
 function InfoPage() {
   return (
     <div className="container mx-auto p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="flex items-center gap-2 text-2xl font-bold">
-          <Info className="h-6 w-6" />
-          Contactos e Información
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Información de contacto de Palex y Hospital Cunqueiro
-        </p>
-      </div>
+      <PageHeader
+        title="Contactos e Información"
+        subtitle="Información de contacto de Palex y Hospital Cunqueiro"
+        icon={<Info className="h-6 w-6" />}
+        showBack={true}
+        backTo="/dashboard"
+      />
 
       {/* Contacts Grid */}
       <div className="grid gap-4 sm:grid-cols-2">
