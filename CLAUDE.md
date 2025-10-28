@@ -5,6 +5,64 @@
 - All code, docs and texts must be in english
 - Commits must follow conventional commits convention
 
+## Design Principles
+
+### Responsive Design Strategy
+
+All UI designs and features must follow these principles:
+
+1. **Desktop and Mobile Support**: The application must work seamlessly on both desktop and mobile devices
+   - Desktop: ≥640px (sm breakpoint and above)
+   - Mobile: <640px
+   - Tablet considerations when relevant
+
+2. **Mobile-First Approach**: Always design and implement from mobile perspective first
+   - Start with mobile layout and constraints
+   - Enhance progressively for larger screens
+   - Ensure touch targets are appropriate (minimum 44x44px)
+   - Optimize for vertical scrolling and limited horizontal space
+   - Example pattern:
+     ```tsx
+     // Mobile: compact summary
+     <div className="sm:hidden">Compact view</div>
+
+     // Desktop: rich detailed view
+     <Card className="hidden sm:block">Detailed view</Card>
+     ```
+
+3. **Industry-Standard Patterns**: Leverage proven UX patterns from leading applications
+   - Research patterns used by: Gmail, Shopify, Asana, Linear, Notion, Slack, etc.
+   - Use familiar interaction models (tap-to-select, swipe gestures, steppers, etc.)
+   - Follow platform conventions (iOS/Android guidelines for mobile web)
+   - Prioritize patterns users already know and expect
+   - Document pattern sources in implementation (e.g., "Pattern based on: Gmail selection model")
+
+4. **Application-Wide Consistency**: Maintain uniform patterns across all features
+   - Reuse components and interaction patterns
+   - Consistent spacing, colors, typography (via Tailwind/SHADCN)
+   - Same navigation patterns throughout (PageHeader, BottomNavigation)
+   - Unified feedback mechanisms (loading states, errors, success messages)
+   - Consistent terminology and copy
+   - Example: If selection uses background color + check icon in one place, use it everywhere
+
+### Design Decision Process
+
+When implementing new features or redesigning existing ones:
+
+1. **Analyze mobile constraints first** - What's the minimum viable layout?
+2. **Research industry patterns** - How do successful apps solve this?
+3. **Consider consistency** - Does this match existing patterns in the app?
+4. **Plan responsive behavior** - How does it adapt from mobile to desktop?
+5. **Validate with user flow** - Is the interaction intuitive and familiar?
+
+### Examples of Good Patterns in This Project
+
+- **Selection**: Background color + check icon (mobile visible, desktop clear)
+- **Navigation**: Bottom nav on mobile, header always present on desktop
+- **Summary cards**: Hide on mobile, show compact text; full cards on desktop
+- **Action buttons**: Stacked on mobile (100% width), inline on desktop
+- **Forms/Inputs**: Full-width on mobile, constrained width on desktop
+
 ## Current Stack
 
 - **Build Tool:** Vite
