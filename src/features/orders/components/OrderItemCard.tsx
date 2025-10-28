@@ -56,7 +56,7 @@ export function OrderItemCard({
       )}
 
       {/* Desktop: Horizontal layout */}
-      <div className="hidden sm:flex items-center justify-between gap-4">
+      <div className="hidden sm:flex items-center justify-between gap-4 pr-8">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold truncate">{material.name}</h3>
           <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
@@ -74,33 +74,32 @@ export function OrderItemCard({
           </div>
         </div>
 
-        {/* Stepper Desktop */}
-        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-          <div className="text-sm text-muted-foreground mr-2">
-            {material.itemsPerBox ? 'Cajas:' : 'Cantidad:'}
+        {/* Stepper Desktop - Alineado a la derecha */}
+        <div className="flex flex-col items-end gap-1" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-2">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={handleDecrement}
+              disabled={quantity === 0}
+              className="h-8 w-8"
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            <Input
+              type="number"
+              value={quantity}
+              onChange={handleInputChange}
+              onClick={(e) => e.stopPropagation()}
+              className="w-16 text-center h-8 bg-background"
+              min="0"
+            />
+            <Button size="icon" variant="outline" onClick={handleIncrement} className="h-8 w-8">
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={handleDecrement}
-            disabled={quantity === 0}
-            className="h-8 w-8"
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
-          <Input
-            type="number"
-            value={quantity}
-            onChange={handleInputChange}
-            onClick={(e) => e.stopPropagation()}
-            className="w-16 text-center h-8 bg-background"
-            min="0"
-          />
-          <Button size="icon" variant="outline" onClick={handleIncrement} className="h-8 w-8">
-            <Plus className="h-4 w-4" />
-          </Button>
           {material.itemsPerBox && (
-            <div className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
+            <div className="text-xs text-muted-foreground">
               ({totalUnits} {material.unit})
             </div>
           )}
