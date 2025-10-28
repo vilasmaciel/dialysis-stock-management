@@ -94,6 +94,7 @@ export function MaterialRow({ material }: MaterialRowProps) {
         {/* Material Info */}
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-base truncate">{material.name}</h3>
+
           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
             <span
               className={cn(
@@ -104,6 +105,13 @@ export function MaterialRow({ material }: MaterialRowProps) {
               {material.availableSessions} sesiones
             </span>
           </div>
+
+          {/* Description - Always visible */}
+          {material.description && (
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+              {material.description}
+            </p>
+          )}
         </div>
 
         {/* Stock Controls */}
@@ -177,6 +185,13 @@ export function MaterialRow({ material }: MaterialRowProps) {
             </div>
           </div>
         </div>
+
+        {/* Description - Always visible - Mobile */}
+        {material.description && (
+          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+            {material.description}
+          </p>
+        )}
 
         {/* Stock Controls - Full width */}
         <div className="flex flex-col items-center gap-0.5">
