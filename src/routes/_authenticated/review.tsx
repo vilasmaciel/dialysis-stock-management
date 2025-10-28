@@ -109,11 +109,16 @@ function ReviewPage() {
       {/* Progress Bar */}
       {!isComplete && (
         <div className="mb-6">
-          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="flex items-center gap-3">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span className="text-sm font-semibold text-muted-foreground whitespace-nowrap">
+              {currentIndex + 1}/{totalItems}
+            </span>
           </div>
         </div>
       )}

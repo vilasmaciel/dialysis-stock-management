@@ -46,44 +46,39 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <div className="rounded-lg border-2 border-primary bg-card p-6 shadow-lg">
+      <div className="rounded-lg border-2 border-primary bg-card p-4 sm:p-6 shadow-lg">
         {/* Material Info */}
-        <div className="mb-6 text-center">
+        <div className="mb-4 sm:mb-6 text-center">
           {material.photoUrl ? (
             <img
               src={material.photoUrl}
               alt={material.name}
-              className="mx-auto mb-4 h-32 w-32 rounded-lg object-cover"
+              className="mx-auto mb-3 sm:mb-4 h-16 w-16 sm:h-24 sm:w-24 rounded-lg object-cover"
             />
           ) : (
-            <div className="mx-auto mb-4 flex h-32 w-32 items-center justify-center rounded-lg bg-muted">
-              <Package className="h-16 w-16 text-muted-foreground" />
+            <div className="mx-auto mb-3 sm:mb-4 flex h-16 w-16 sm:h-24 sm:w-24 items-center justify-center rounded-lg bg-muted">
+              <Package className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground" />
             </div>
           )}
-          <h2 className="text-2xl font-bold">{material.name}</h2>
-          <p className="text-muted-foreground">
-            {material.code}
-            {material.itemsPerBox && ` • ${material.itemsPerBox} items/caja`} • Uso: {material.usagePerSession}{' '}
-            {material.unit}/sesión
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Stock actual: {material.currentStock} {material.unit}
+          <h2 className="text-xl sm:text-2xl font-bold">{material.name}</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Uso: {material.usagePerSession} {material.unit}/sesión
           </p>
         </div>
 
         {/* Descripción del material */}
         {material.description && (
-          <div className="mb-4 flex items-center gap-3 rounded-lg border bg-muted/50 px-4 py-3">
+          <div className="mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3 rounded-lg border bg-muted/50 px-3 py-2 sm:px-4 sm:py-3">
             <Info className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {material.description}
             </p>
           </div>
         )}
 
         {/* Input de stock */}
-        <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium">
+        <div className="mb-3 sm:mb-4">
+          <label className="mb-2 block text-sm sm:text-base font-medium">
             ¿Cuánto stock tienes actualmente?
           </label>
           <div className="flex flex-col items-center gap-2">
@@ -102,7 +97,7 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}
                 placeholder="0"
-                className="text-2xl text-center font-bold w-32"
+                className="text-xl sm:text-2xl text-center font-bold w-28 sm:w-32"
                 min="0"
                 step="0.1"
               />
@@ -120,12 +115,12 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
         </div>
 
         {/* Sesiones disponibles */}
-        <div className="mb-6 text-center">
-          <div className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2">
-            <span className="text-sm text-muted-foreground">Sesiones disponibles:</span>
+        <div className="mb-4 sm:mb-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-lg bg-muted px-3 py-2 sm:px-4">
+            <span className="text-xs sm:text-sm text-muted-foreground">Sesiones disponibles:</span>
             <span
               className={cn(
-                'text-xl font-bold',
+                'text-lg sm:text-xl font-bold',
                 needsOrder ? 'text-destructive' : 'text-primary'
               )}
             >
@@ -133,7 +128,7 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
             </span>
           </div>
           {needsOrder && (
-            <div className="mt-2 text-sm text-destructive">
+            <div className="mt-2 text-xs sm:text-sm text-destructive">
               ⚠️ Stock bajo! Mínimo recomendado: {material.minSessions} sesiones
             </div>
           )}
