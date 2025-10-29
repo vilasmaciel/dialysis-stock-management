@@ -51,7 +51,8 @@ export default defineConfig({
     }),
     viteImagemin({
       // Optimize images in public/material/ directory
-      // The plugin will automatically process images in public folder
+      // Note: mozjpeg disabled due to binary dependencies issues
+      // JPEGs will be served as-is (lazy loading still applies)
       gifsicle: {
         optimizationLevel: 7,
         interlaced: false,
@@ -59,20 +60,18 @@ export default defineConfig({
       optipng: {
         optimizationLevel: 7,
       },
-      mozjpeg: {
-        quality: 80, // Balance between quality and file size
-      },
-      svgo: {
-        plugins: [
-          {
-            name: 'removeViewBox',
-          },
-          {
-            name: 'removeEmptyAttrs',
-            active: false,
-          },
-        ],
-      },
+      // mozjpeg disabled - requires native binaries that may not be available
+      // svgo: {
+      //   plugins: [
+      //     {
+      //       name: 'removeViewBox',
+      //     },
+      //     {
+      //       name: 'removeEmptyAttrs',
+      //       active: false,
+      //     },
+      //   ],
+      // },
     }),
   ],
   resolve: {
