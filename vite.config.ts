@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import path from 'path'
 import { VitePWA } from 'vite-plugin-pwa'
+import viteImagemin from 'vite-plugin-imagemin'
 
 export default defineConfig({
   plugins: [
@@ -46,6 +47,31 @@ export default defineConfig({
         // Skip waiting and claim clients immediately for faster updates
         skipWaiting: true,
         clientsClaim: true,
+      },
+    }),
+    viteImagemin({
+      // Optimize images in public/material/ directory
+      // The plugin will automatically process images in public folder
+      gifsicle: {
+        optimizationLevel: 7,
+        interlaced: false,
+      },
+      optipng: {
+        optimizationLevel: 7,
+      },
+      mozjpeg: {
+        quality: 80, // Balance between quality and file size
+      },
+      svgo: {
+        plugins: [
+          {
+            name: 'removeViewBox',
+          },
+          {
+            name: 'removeEmptyAttrs',
+            active: false,
+          },
+        ],
       },
     }),
   ],

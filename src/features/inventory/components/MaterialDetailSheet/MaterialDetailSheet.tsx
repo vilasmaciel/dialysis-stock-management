@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Package, Info } from 'lucide-react'
 import type { MaterialWithStats } from '#/shared/types/material'
 import { Button } from '#/shared/components/ui/button'
@@ -27,17 +28,25 @@ interface MaterialDetailSheetProps {
 }
 
 function MaterialDetailContent({ material }: { material: MaterialWithStats }) {
+  const [imageError, setImageError] = useState(false)
+
+  // Reset image error when material changes
+  useEffect(() => {
+    setImageError(false)
+  }, [material.photoUrl])
   return (
     <div className="space-y-6 py-4">
       {/* Primary Section: Photo + Key Specifications (Two-column grid) */}
       <div className="grid sm:grid-cols-[160px_1fr] gap-6 items-start">
         {/* Photo */}
         <div className="flex justify-center sm:justify-start">
-          {material.photoUrl ? (
+          {material.photoUrl && !imageError ? (
             <img
               src={material.photoUrl}
               alt={material.name}
               className="h-32 w-32 sm:h-40 sm:w-40 rounded-lg object-cover border"
+              loading="lazy"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="flex h-32 w-32 sm:h-40 sm:w-40 items-center justify-center rounded-lg border bg-muted">

@@ -15,11 +15,17 @@ interface ReviewCardProps {
 
 export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: ReviewCardProps) {
   const [stock, setStock] = useState(material.currentStock.toString())
+  const [imageError, setImageError] = useState(false)
 
   // Sync stock input with current material when it changes
   useEffect(() => {
     setStock(material.currentStock.toString())
   }, [material.id, material.currentStock])
+
+  // Reset image error when material changes
+  useEffect(() => {
+    setImageError(false)
+  }, [material.photoUrl])
 
   const handleConfirm = () => {
     const value = parseFloat(stock)
@@ -49,11 +55,13 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
       <div className="rounded-lg border-2 border-primary bg-card p-4 sm:p-6 shadow-lg">
         {/* Material Info */}
         <div className="mb-4 sm:mb-6 text-center">
-          {material.photoUrl ? (
+          {material.photoUrl && !imageError ? (
             <img
               src={material.photoUrl}
               alt={material.name}
               className="mx-auto mb-3 sm:mb-4 h-16 w-16 sm:h-24 sm:w-24 rounded-lg object-cover"
+              loading="lazy"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="mx-auto mb-3 sm:mb-4 flex h-16 w-16 sm:h-24 sm:w-24 items-center justify-center rounded-lg bg-muted">

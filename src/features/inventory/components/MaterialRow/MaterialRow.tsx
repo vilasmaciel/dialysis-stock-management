@@ -14,6 +14,7 @@ interface MaterialRowProps {
 
 export function MaterialRow({ material, onOpenDetail }: MaterialRowProps) {
   const [quantity, setQuantity] = useState(material.currentStock)
+  const [imageError, setImageError] = useState(false)
   const { user } = useAuth()
   const { mutate: updateStock, isPending } = useUpdateMaterialStock()
   const statusColor = material.availableSessions >= material.minSessions ? 'green' : 'red'
@@ -22,6 +23,11 @@ export function MaterialRow({ material, onOpenDetail }: MaterialRowProps) {
   useEffect(() => {
     setQuantity(material.currentStock)
   }, [material.currentStock])
+
+  // Reset image error when material changes
+  useEffect(() => {
+    setImageError(false)
+  }, [material.photoUrl])
 
   const handleIncrement = () => {
     const newQuantity = quantity + 1
@@ -85,11 +91,13 @@ export function MaterialRow({ material, onOpenDetail }: MaterialRowProps) {
           onClick={onOpenDetail}
         >
           {/* Image/Placeholder */}
-          {material.photoUrl ? (
+          {material.photoUrl && !imageError ? (
             <img
               src={material.photoUrl}
               alt={material.name}
               className="h-24 w-24 rounded object-cover flex-shrink-0"
+              loading="lazy"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded bg-muted">
@@ -167,11 +175,13 @@ export function MaterialRow({ material, onOpenDetail }: MaterialRowProps) {
           {/* Header with image and name */}
           <div className="flex items-center gap-2">
             {/* Image/Placeholder */}
-            {material.photoUrl ? (
+            {material.photoUrl && !imageError ? (
               <img
                 src={material.photoUrl}
                 alt={material.name}
                 className="h-24 w-24 rounded object-cover flex-shrink-0"
+                loading="lazy"
+                onError={() => setImageError(true)}
               />
             ) : (
               <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded bg-muted">

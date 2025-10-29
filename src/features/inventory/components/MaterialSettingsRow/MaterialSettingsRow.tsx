@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { ChevronRight, Package } from 'lucide-react'
 import type { Material } from '#/shared/types/material'
 import { cn } from '#/shared/lib/utils'
@@ -8,6 +9,12 @@ interface MaterialSettingsRowProps {
 }
 
 export function MaterialSettingsRow({ material, onClick }: MaterialSettingsRowProps) {
+  const [imageError, setImageError] = useState(false)
+
+  // Reset image error when material changes
+  useEffect(() => {
+    setImageError(false)
+  }, [material.photoUrl])
   return (
     <button
       type="button"
@@ -18,11 +25,13 @@ export function MaterialSettingsRow({ material, onClick }: MaterialSettingsRowPr
       )}
     >
       {/* Material image/placeholder */}
-      {material.photoUrl ? (
+      {material.photoUrl && !imageError ? (
         <img
           src={material.photoUrl}
           alt={material.name}
           className="h-12 w-12 rounded object-cover flex-shrink-0"
+          loading="lazy"
+          onError={() => setImageError(true)}
         />
       ) : (
         <div className="flex h-12 w-12 items-center justify-center rounded bg-muted flex-shrink-0">

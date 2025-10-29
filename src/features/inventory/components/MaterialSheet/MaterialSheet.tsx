@@ -89,6 +89,13 @@ function MaterialFormContent({
   setCurrentStock,
   material,
 }: MaterialFormContentProps) {
+  const [imageError, setImageError] = useState(false)
+
+  // Reset image error when photoUrl changes
+  useEffect(() => {
+    setImageError(false)
+  }, [photoUrl])
+
   return (
     <div className="grid gap-4 py-4 sm:grid-cols-2">
       {/* Code */}
@@ -159,14 +166,13 @@ function MaterialFormContent({
           </div>
           {/* Image preview */}
           <div className="flex-shrink-0">
-            {photoUrl ? (
+            {photoUrl && !imageError ? (
               <img
                 src={photoUrl}
                 alt="Preview"
                 className="h-16 w-16 rounded object-cover border"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                }}
+                loading="lazy"
+                onError={() => setImageError(true)}
               />
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded border bg-muted">
