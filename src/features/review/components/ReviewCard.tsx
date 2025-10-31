@@ -4,6 +4,7 @@ import { Button } from '#/shared/components/ui/button'
 import { Input } from '#/shared/components/ui/input'
 import { cn } from '#/shared/lib/utils'
 import { Minus, Plus, Package, Info } from 'lucide-react'
+import { ImageLightbox } from '#/shared/components/ImageLightbox'
 
 interface ReviewCardProps {
   material: MaterialWithStats
@@ -16,6 +17,7 @@ interface ReviewCardProps {
 export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: ReviewCardProps) {
   const [stock, setStock] = useState(material.currentStock.toString())
   const [imageError, setImageError] = useState(false)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   // Sync stock input with current material when it changes
   useEffect(() => {
@@ -53,22 +55,33 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
   return (
     <div className="mx-auto w-full max-w-2xl">
       <div className="rounded-lg border-2 border-primary bg-card p-4 sm:p-6 shadow-lg">
-        {/* Material Info */}
-        <div className="mb-4 sm:mb-6 text-center">
+        {/* Prominent Image Section */}
+        <div className="mb-6 sm:mb-8 flex justify-center">
           {material.photoUrl && !imageError ? (
-            <img
-              src={material.photoUrl}
-              alt={material.name}
-              className="mx-auto mb-3 sm:mb-4 h-16 w-16 sm:h-24 sm:w-24 rounded-lg object-cover"
-              loading="lazy"
-              onError={() => setImageError(true)}
-            />
+            <div className="relative group cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
+              <img
+                src={material.photoUrl}
+                alt={material.name}
+                className="h-48 w-48 sm:h-80 sm:w-80 rounded-lg object-cover border-2 border-border shadow-md transition-opacity group-hover:opacity-90"
+                loading="lazy"
+                onError={() => setImageError(true)}
+              />
+            </div>
           ) : (
-            <div className="mx-auto mb-3 sm:mb-4 flex h-16 w-16 sm:h-24 sm:w-24 items-center justify-center rounded-lg bg-muted">
-              <Package className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground" />
+            <div className="flex h-48 w-48 sm:h-80 sm:w-80 items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted">
+              <Package className="h-24 w-24 sm:h-40 sm:w-40 text-muted-foreground" />
             </div>
           )}
-          <h2 className="text-xl sm:text-2xl font-bold">{material.name}</h2>
+        </div>
+
+        {/* Material Info */}
+        <div className="mb-4 sm:mb-6 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2">{material.name}</h2>
+          {material.code && (
+            <p className="text-sm sm:text-base text-muted-foreground mb-1">
+              Código: {material.code}
+            </p>
+          )}
           <p className="text-sm sm:text-base text-muted-foreground">
             Uso: {material.usagePerSession} {material.unit}/sesión
           </p>
@@ -159,6 +172,17 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
           </Button>
         </div>
       </div>
+
+      {/* Image Lightbox */}
+      {material.photoUrl && !imageError && (
+        <ImageLightbox
+          open={isLightboxOpen}
+          onClose={() => setIsLightboxOpen(false)}
+          imageUrl={material.photoUrl}
+          alt={material.name}
+        />
+      )}
     </div>
   )
 }
+
