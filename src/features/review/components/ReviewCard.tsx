@@ -76,15 +76,7 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
 
         {/* Material Info */}
         <div className="mb-4 sm:mb-6 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">{material.name}</h2>
-          {material.code && (
-            <p className="text-sm sm:text-base text-muted-foreground mb-1">
-              Código: {material.code}
-            </p>
-          )}
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Uso: {material.usagePerSession} {material.unit}/sesión
-          </p>
+          <h2 className="text-2xl sm:text-3xl font-bold">{material.name}</h2>
         </div>
 
         {/* Descripción del material */}
@@ -99,7 +91,7 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
 
         {/* Input de stock */}
         <div className="mb-3 sm:mb-4">
-          <label className="mb-2 block text-sm sm:text-base font-medium">
+          <label className="mb-2 block text-sm sm:text-base font-medium text-center">
             ¿Cuánto stock tienes actualmente?
           </label>
           <div className="flex flex-col items-center gap-2">
