@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Loader2, Trash2, Package, AlertCircle } from 'lucide-react'
+import { Loader2, Trash2, Package, AlertCircle, Camera } from 'lucide-react'
 import type { Material } from '#/shared/types/material'
 import { Button } from '#/shared/components/ui/button'
 import { Input } from '#/shared/components/ui/input'
 import { Label } from '#/shared/components/ui/label'
+import { Textarea } from '#/shared/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -90,28 +91,109 @@ function MaterialFormContent({
   material,
 }: MaterialFormContentProps) {
   const [imageError, setImageError] = useState(false)
+  const [previewImageError, setPreviewImageError] = useState(false)
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false)
+  const [tempImageUrl, setTempImageUrl] = useState('')
 
   // Reset image error when photoUrl changes
   useEffect(() => {
     setImageError(false)
   }, [photoUrl])
 
+  // Sync tempImageUrl with photoUrl when dialog opens
+  useEffect(() => {
+    if (isImageDialogOpen) {
+      setTempImageUrl(photoUrl)
+      setPreviewImageError(false)
+    }
+  }, [isImageDialogOpen, photoUrl])
+
+  // Reset preview error when tempImageUrl changes
+  useEffect(() => {
+    setPreviewImageError(false)
+  }, [tempImageUrl])
+
+  const handleImageClick = () => {
+    setIsImageDialogOpen(true)
+  }
+
+  const handleImageDialogSave = () => {
+    setPhotoUrl(tempImageUrl.trim())
+    setIsImageDialogOpen(false)
+  }
+
+  const handleImageDialogCancel = () => {
+    setTempImageUrl(photoUrl)
+    setIsImageDialogOpen(false)
+  }
+
   return (
-    <div className="grid gap-4 py-4 sm:grid-cols-2">
-      {/* Code */}
-      <div className="space-y-2">
-        <Label htmlFor="code">
-          Código <span className="text-destructive">*</span>
-        </Label>
-        <Input
-          id="code"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="ej: DIA-001"
-          required
-        />
+    <>
+      {/* Image + Key Fields Section - Two columns on desktop */}
+      <div className="grid sm:grid-cols-[160px_1fr] gap-4 sm:gap-6 py-4 border-b">
+        {/* Clickable Image */}
+        <div className="flex justify-center sm:justify-start">
+          <div className="relative group cursor-pointer" onClick={handleImageClick}>
+            {photoUrl && !imageError ? (
+              <>
+                <img
+                  src={photoUrl}
+                  alt="Material preview"
+                  className="h-32 w-32 sm:h-40 sm:w-40 rounded-lg object-cover border-2 border-border transition-opacity group-hover:opacity-70"
+                  loading="lazy"
+                  onError={() => setImageError(true)}
+                />
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Camera className="h-8 w-8 text-white" />
+                </div>
+              </>
+            ) : (
+              <div className="flex h-32 w-32 sm:h-40 sm:w-40 items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted group-hover:bg-muted/80 transition-colors">
+                <div className="flex flex-col items-center gap-2">
+                  <Camera className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors text-center px-2">
+                    Click para agregar imagen
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Key Fields - Right side on desktop */}
+        <div className="space-y-4">
+          {/* Name */}
+          <div className="space-y-2">
+            <Label htmlFor="name">
+              Nombre <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="ej: Dializador FX80"
+              required
+            />
+          </div>
+
+          {/* Code */}
+          <div className="space-y-2">
+            <Label htmlFor="code">
+              Código <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="ej: DIA-001"
+              required
+            />
+          </div>
+        </div>
       </div>
 
+      <div className="grid gap-4 py-4 sm:grid-cols-2">
       {/* Items per box */}
       <div className="space-y-2">
         <Label htmlFor="itemsPerBox">Items por caja</Label>
@@ -124,66 +206,6 @@ function MaterialFormContent({
           min="1"
           step="1"
         />
-      </div>
-
-      {/* Name - Full width */}
-      <div className="space-y-2 sm:col-span-2">
-        <Label htmlFor="name">
-          Nombre <span className="text-destructive">*</span>
-        </Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="ej: Dializador FX80"
-          required
-        />
-      </div>
-
-      {/* Description - Full width */}
-      <div className="space-y-2 sm:col-span-2">
-        <Label htmlFor="description">Descripción</Label>
-        <Input
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Información adicional"
-        />
-      </div>
-
-      {/* Photo URL with preview */}
-      <div className="space-y-2 sm:col-span-2">
-        <Label htmlFor="photo_url">URL de la imagen</Label>
-        <div className="flex gap-3 items-start">
-          <div className="flex-1">
-            <Input
-              id="photo_url"
-              type="url"
-              value={photoUrl}
-              onChange={(e) => setPhotoUrl(e.target.value)}
-              placeholder="https://ejemplo.com/imagen.jpg"
-            />
-          </div>
-          {/* Image preview */}
-          <div className="flex-shrink-0">
-            {photoUrl && !imageError ? (
-              <img
-                src={photoUrl}
-                alt="Preview"
-                className="h-16 w-16 rounded object-cover border"
-                loading="lazy"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded border bg-muted">
-                <Package className="h-8 w-8 text-muted-foreground" />
-              </div>
-            )}
-          </div>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          URL de una imagen del material (opcional)
-        </p>
       </div>
 
       {/* Unit */}
@@ -223,8 +245,8 @@ function MaterialFormContent({
       </div>
 
       {/* Current stock (only when creating) */}
-      {!isEditing && (
-        <div className="space-y-2 sm:col-span-2">
+      {!isEditing ? (
+        <div className="space-y-2">
           <Label htmlFor="current_stock">Stock inicial</Label>
           <Input
             id="current_stock"
@@ -236,8 +258,99 @@ function MaterialFormContent({
             placeholder="0"
           />
         </div>
+      ) : (
+        <div></div>
       )}
-    </div>
+
+      {/* Description - Full width, at the end */}
+      <div className="space-y-2 sm:col-span-2">
+        <Label htmlFor="description">Descripción</Label>
+        <Textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Información adicional sobre el material..."
+          rows={4}
+          className="resize-none"
+        />
+      </div>
+      </div>
+
+      {/* Image URL Editor Dialog */}
+      <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>URL de la imagen</DialogTitle>
+            <DialogDescription>
+              Ingresa la URL de una imagen del material (opcional)
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="image_url_input">URL</Label>
+              <Input
+                id="image_url_input"
+                type="url"
+                value={tempImageUrl}
+                onChange={(e) => setTempImageUrl(e.target.value)}
+                placeholder="https://ejemplo.com/imagen.jpg"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleImageDialogSave()
+                  }
+                }}
+              />
+            </div>
+
+            {/* Preview */}
+            {tempImageUrl.trim() && (
+              <div className="space-y-2">
+                <Label>Vista previa</Label>
+                <div className="flex justify-center">
+                  {!previewImageError ? (
+                    <img
+                      src={tempImageUrl.trim()}
+                      alt="Preview"
+                      className="h-32 w-32 rounded-lg object-cover border"
+                      loading="lazy"
+                      onError={() => setPreviewImageError(true)}
+                    />
+                  ) : (
+                    <div className="flex h-32 w-32 items-center justify-center rounded-lg border bg-muted">
+                      <Package className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                {previewImageError && (
+                  <p className="text-xs text-destructive text-center">
+                    No se pudo cargar la imagen. Verifica que la URL sea correcta.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {!tempImageUrl.trim() && (
+              <div className="flex justify-center">
+                <div className="flex h-32 w-32 items-center justify-center rounded-lg border bg-muted">
+                  <Package className="h-16 w-16 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleImageDialogCancel}>
+              Cancelar
+            </Button>
+            <Button onClick={handleImageDialogSave}>
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
