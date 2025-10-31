@@ -20,6 +20,7 @@ const mockMaterial: MaterialWithStats = {
   usagePerSession: 2,
   currentStock: 50,
   photoUrl: 'https://example.com/photo.jpg',
+  hospitalPickup: false,
   minSessions: 7,
   maxSessions: 20,
   orderQuantity: 40,
