@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import path from 'path'
 import { VitePWA } from 'vite-plugin-pwa'
-import viteImagemin from 'vite-plugin-imagemin'
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 
 export default defineConfig({
   plugins: [
@@ -49,29 +49,19 @@ export default defineConfig({
         clientsClaim: true,
       },
     }),
-    viteImagemin({
-      // Optimize images in public/material/ directory
-      // Note: mozjpeg disabled due to binary dependencies issues
-      // JPEGs will be served as-is (lazy loading still applies)
-      gifsicle: {
-        optimizationLevel: 7,
-        interlaced: false,
+    ViteImageOptimizer({
+      // Optimize images in public/material/ directory using Sharp
+      // This plugin works reliably without native binary issues
+      png: {
+        quality: 80,
       },
-      optipng: {
-        optimizationLevel: 7,
+      jpeg: {
+        quality: 80,
       },
-      // mozjpeg disabled - requires native binaries that may not be available
-      // svgo: {
-      //   plugins: [
-      //     {
-      //       name: 'removeViewBox',
-      //     },
-      //     {
-      //       name: 'removeEmptyAttrs',
-      //       active: false,
-      //     },
-      //   ],
-      // },
+      jpg: {
+        quality: 80,
+      },
+      // Automatically optimizes images during build
     }),
   ],
   resolve: {

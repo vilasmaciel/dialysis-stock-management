@@ -20,6 +20,7 @@ import {
 } from '#/shared/components/ui/sheet'
 import { useIsDesktop } from '#/shared/hooks/useMediaQuery'
 import { cn } from '#/shared/lib/utils'
+import { ImageLightbox } from '#/shared/components/ImageLightbox'
 
 interface MaterialDetailSheetProps {
   material: MaterialWithStats | null
@@ -29,31 +30,34 @@ interface MaterialDetailSheetProps {
 
 function MaterialDetailContent({ material }: { material: MaterialWithStats }) {
   const [imageError, setImageError] = useState(false)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   // Reset image error when material changes
   useEffect(() => {
     setImageError(false)
   }, [material.photoUrl])
   return (
-    <div className="space-y-6 py-4">
-      {/* Primary Section: Photo + Key Specifications (Two-column grid) */}
-      <div className="grid sm:grid-cols-[160px_1fr] gap-6 items-start">
-        {/* Photo */}
-        <div className="flex justify-center sm:justify-start">
-          {material.photoUrl && !imageError ? (
-            <img
-              src={material.photoUrl}
-              alt={material.name}
-              className="h-32 w-32 sm:h-40 sm:w-40 rounded-lg object-cover border"
-              loading="lazy"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className="flex h-32 w-32 sm:h-40 sm:w-40 items-center justify-center rounded-lg border bg-muted">
-              <Package className="h-16 w-16 sm:h-20 sm:w-20 text-muted-foreground" />
-            </div>
-          )}
-        </div>
+    <>
+      <div className="space-y-6 py-4">
+        {/* Primary Section: Photo + Key Specifications (Two-column grid) */}
+        <div className="grid sm:grid-cols-[384px_1fr] gap-6 items-start">
+          {/* Photo */}
+          <div className="flex justify-center sm:justify-start">
+            {material.photoUrl && !imageError ? (
+              <img
+                src={material.photoUrl}
+                alt={material.name}
+                className="h-64 w-64 sm:h-96 sm:w-96 rounded-lg object-cover border cursor-pointer transition-opacity hover:opacity-90"
+                loading="lazy"
+                onError={() => setImageError(true)}
+                onClick={() => setIsLightboxOpen(true)}
+              />
+            ) : (
+              <div className="flex h-64 w-64 sm:h-96 sm:w-96 items-center justify-center rounded-lg border bg-muted">
+                <Package className="h-32 w-32 sm:h-48 sm:w-48 text-muted-foreground" />
+              </div>
+            )}
+          </div>
 
         {/* Key Specifications */}
         <div className="space-y-3">
@@ -146,7 +150,18 @@ function MaterialDetailContent({ material }: { material: MaterialWithStats }) {
           </div>
         )}
       </div>
-    </div>
+      </div>
+
+      {/* Image Lightbox */}
+      {material.photoUrl && !imageError && (
+        <ImageLightbox
+          open={isLightboxOpen}
+          onClose={() => setIsLightboxOpen(false)}
+          imageUrl={material.photoUrl}
+          alt={material.name}
+        />
+      )}
+    </>
   )
 }
 
@@ -163,7 +178,7 @@ export function MaterialDetailSheet({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[900px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl">{material.name}</DialogTitle>
             <div className="flex gap-2 pt-2">
