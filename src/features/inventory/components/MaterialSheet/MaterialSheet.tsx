@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Loader2, Trash2, Package, AlertCircle, Camera } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Loader2, Trash2, Package, AlertCircle, Camera, Upload, Link as LinkIcon } from 'lucide-react'
 import type { Material } from '#/shared/types/material'
 import { Button } from '#/shared/components/ui/button'
 import { Input } from '#/shared/components/ui/input'
@@ -29,8 +29,10 @@ import {
   SheetTitle,
 } from '#/shared/components/ui/sheet'
 import { Alert, AlertDescription } from '#/shared/components/ui/alert'
+import { Progress } from '#/shared/components/ui/progress'
 import { useCreateMaterial, useUpdateMaterial, useDeleteMaterial } from '../../hooks/useMaterialMutations'
 import { useIsDesktop } from '#/shared/hooks/useMediaQuery'
+import { useImageUpload } from '../../hooks/useImageUpload'
 
 interface MaterialSheetProps {
   material?: Material
@@ -94,6 +96,9 @@ function MaterialFormContent({
   const [previewImageError, setPreviewImageError] = useState(false)
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false)
   const [tempImageUrl, setTempImageUrl] = useState('')
+  const [uploadMode, setUploadMode] = useState<'url' | 'file'>('file')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { uploadImage, isUploading, uploadProgress, error: uploadError } = useImageUpload()
 
   // Reset image error when photoUrl changes
   useEffect(() => {
@@ -125,6 +130,23 @@ function MaterialFormContent({
   const handleImageDialogCancel = () => {
     setTempImageUrl(photoUrl)
     setIsImageDialogOpen(false)
+  }
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !material?.id) return
+
+    const publicUrl = await uploadImage({
+      materialId: material.id,
+      file,
+      onProgress: (progress) => console.log('Upload progress:', progress)
+    })
+
+    if (publicUrl) {
+      setPhotoUrl(publicUrl)
+      setTempImageUrl(publicUrl)
+      setIsImageDialogOpen(false)
+    }
   }
 
   return (
@@ -280,32 +302,100 @@ function MaterialFormContent({
       <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>URL de la imagen</DialogTitle>
+            <DialogTitle>Imagen del material</DialogTitle>
             <DialogDescription>
-              Ingresa la URL de una imagen del material (opcional)
+              {isEditing ? 'Sube una imagen o proporciona una URL' : 'Proporciona la URL de la imagen'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="image_url_input">URL</Label>
-              <Input
-                id="image_url_input"
-                type="url"
-                value={tempImageUrl}
-                onChange={(e) => setTempImageUrl(e.target.value)}
-                placeholder="https://ejemplo.com/imagen.jpg"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleImageDialogSave()
-                  }
-                }}
-              />
-            </div>
+            {/* Tabs para elegir modo (solo si estamos editando) */}
+            {isEditing && (
+              <div className="flex gap-2 mb-4">
+                <Button
+                  type="button"
+                  variant={uploadMode === 'file' ? 'default' : 'outline'}
+                  onClick={() => setUploadMode('file')}
+                  className="flex-1"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Subir archivo
+                </Button>
+                <Button
+                  type="button"
+                  variant={uploadMode === 'url' ? 'default' : 'outline'}
+                  onClick={() => setUploadMode('url')}
+                  className="flex-1"
+                >
+                  <LinkIcon className="h-4 w-4 mr-2" />
+                  URL
+                </Button>
+              </div>
+            )}
 
-            {/* Preview */}
-            {tempImageUrl.trim() && (
+            {/* Modo subida de archivo */}
+            {uploadMode === 'file' && isEditing && (
+              <div className="space-y-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="w-full"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isUploading ? 'Subiendo...' : 'Seleccionar imagen'}
+                </Button>
+
+                {isUploading && (
+                  <div className="space-y-2">
+                    <Progress value={uploadProgress} />
+                    <p className="text-xs text-center text-muted-foreground">
+                      Optimizando y subiendo... {uploadProgress}%
+                    </p>
+                  </div>
+                )}
+
+                {uploadError && (
+                  <p className="text-xs text-destructive text-center">{uploadError}</p>
+                )}
+
+                <p className="text-xs text-muted-foreground text-center">
+                  La imagen se optimizará automáticamente (máx 1024px, formato JPEG, sin metadatos)
+                </p>
+              </div>
+            )}
+
+            {/* Modo URL */}
+            {uploadMode === 'url' && (
+              <div className="space-y-2">
+                <Label htmlFor="image_url_input">URL</Label>
+                <Input
+                  id="image_url_input"
+                  type="url"
+                  value={tempImageUrl}
+                  onChange={(e) => setTempImageUrl(e.target.value)}
+                  placeholder="https://ejemplo.com/imagen.jpg"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleImageDialogSave()
+                    }
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Preview (solo para modo URL) */}
+            {uploadMode === 'url' && tempImageUrl.trim() && (
               <div className="space-y-2">
                 <Label>Vista previa</Label>
                 <div className="flex justify-center">
@@ -331,7 +421,7 @@ function MaterialFormContent({
               </div>
             )}
 
-            {!tempImageUrl.trim() && (
+            {uploadMode === 'url' && !tempImageUrl.trim() && (
               <div className="flex justify-center">
                 <div className="flex h-32 w-32 items-center justify-center rounded-lg border bg-muted">
                   <Package className="h-16 w-16 text-muted-foreground" />
@@ -344,9 +434,11 @@ function MaterialFormContent({
             <Button variant="outline" onClick={handleImageDialogCancel}>
               Cancelar
             </Button>
-            <Button onClick={handleImageDialogSave}>
-              Guardar
-            </Button>
+            {uploadMode === 'url' && (
+              <Button onClick={handleImageDialogSave}>
+                Guardar
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
