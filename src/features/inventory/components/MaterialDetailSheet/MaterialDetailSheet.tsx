@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Package, Info } from 'lucide-react'
+import { Package, Info, Hospital } from 'lucide-react'
 import type { MaterialWithStats } from '#/shared/types/material'
 import { Button } from '#/shared/components/ui/button'
 import { Badge } from '#/shared/components/ui/badge'
@@ -109,6 +109,24 @@ function MaterialDetailContent({ material }: { material: MaterialWithStats }) {
               </p>
             </CardContent>
           </Card>
+        </>
+      )}
+
+      {/* Hospital Pickup Badge */}
+      {material.hospitalPickup && (
+        <>
+          <Separator />
+          <div className="flex items-center gap-2 rounded-lg border border-orange-200 bg-orange-50/50 px-3 py-2">
+            <Hospital className="h-4 w-4 text-orange-600 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-orange-900">
+                Recogida en el hospital
+              </p>
+              <p className="text-xs text-orange-700">
+                No se incluye en pedidos al proveedor
+              </p>
+            </div>
+          </div>
         </>
       )}
 

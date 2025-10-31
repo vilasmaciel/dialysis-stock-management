@@ -20,6 +20,9 @@ function ReviewPage() {
   const navigate = useNavigate()
   const [isSaving, setIsSaving] = useState(false)
 
+  // Filter out materials with hospital pickup
+  const materialsToReview = materials?.filter(m => !m.hospitalPickup) || []
+
   const {
     currentMaterial,
     currentIndex,
@@ -30,7 +33,7 @@ function ReviewPage() {
     reviewedItems,
     markAsReviewed,
     goToPrevious,
-  } = useReviewSession(materials || [])
+  } = useReviewSession(materialsToReview)
 
   if (isLoading) {
     return (
@@ -43,7 +46,7 @@ function ReviewPage() {
     )
   }
 
-  if (!materials || materials.length === 0) {
+  if (!materialsToReview || materialsToReview.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">

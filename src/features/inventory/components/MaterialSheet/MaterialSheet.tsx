@@ -30,6 +30,7 @@ import {
 } from '#/shared/components/ui/sheet'
 import { Alert, AlertDescription } from '#/shared/components/ui/alert'
 import { Progress } from '#/shared/components/ui/progress'
+import { Checkbox } from '#/shared/components/ui/checkbox'
 import { useCreateMaterial, useUpdateMaterial, useDeleteMaterial } from '../../hooks/useMaterialMutations'
 import { useIsDesktop } from '#/shared/hooks/useMediaQuery'
 import { useImageUpload } from '../../hooks/useImageUpload'
@@ -69,6 +70,8 @@ interface MaterialFormContentProps {
   setUsagePerSession: (value: string) => void
   currentStock: string
   setCurrentStock: (value: string) => void
+  hospitalPickup: boolean
+  setHospitalPickup: (value: boolean) => void
   material?: Material
 }
 
@@ -90,6 +93,8 @@ function MaterialFormContent({
   setUsagePerSession,
   currentStock,
   setCurrentStock,
+  hospitalPickup,
+  setHospitalPickup,
   material,
 }: MaterialFormContentProps) {
   const [imageError, setImageError] = useState(false)
@@ -284,6 +289,28 @@ function MaterialFormContent({
         <div></div>
       )}
 
+      {/* Hospital Pickup - Full width */}
+      <div className="space-y-2 sm:col-span-2">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="hospital_pickup"
+            checked={hospitalPickup}
+            onCheckedChange={(checked) => setHospitalPickup(!!checked)}
+          />
+          <div className="grid gap-1.5 leading-none">
+            <Label
+              htmlFor="hospital_pickup"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              Recogida en el hospital
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Este material se recoge en el hospital y no se incluye en pedidos al proveedor
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Description - Full width, at the end */}
       <div className="space-y-2 sm:col-span-2">
         <Label htmlFor="description">Descripción</Label>
@@ -459,6 +486,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
   const [unit, setUnit] = useState('unidades')
   const [usagePerSession, setUsagePerSession] = useState('1')
   const [currentStock, setCurrentStock] = useState('0')
+  const [hospitalPickup, setHospitalPickup] = useState(false)
 
   // Sync form state with material prop
   useEffect(() => {
@@ -471,6 +499,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
       setUnit(material.unit)
       setUsagePerSession(material.usagePerSession?.toString() || '1')
       setCurrentStock(material.currentStock?.toString() || '0')
+      setHospitalPickup(material.hospitalPickup || false)
     } else {
       // Reset to defaults when creating new material
       setCode('')
@@ -481,6 +510,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
       setUnit('unidades')
       setUsagePerSession('1')
       setCurrentStock('0')
+      setHospitalPickup(false)
     }
   }, [material, open])
 
@@ -505,6 +535,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
       unit,
       usage_per_session: Number.parseFloat(usagePerSession),
       current_stock: Number.parseFloat(currentStock),
+      hospital_pickup: hospitalPickup,
     }
 
     try {
@@ -580,6 +611,8 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
     setUsagePerSession,
     currentStock,
     setCurrentStock,
+    hospitalPickup,
+    setHospitalPickup,
     material,
   }
 

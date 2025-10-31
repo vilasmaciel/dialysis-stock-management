@@ -15,6 +15,7 @@ export interface Database {
           current_stock: number
           photo_url: string | null
           notes: string | null
+          hospital_pickup: boolean
           created_at: string
           updated_at: string
         }
@@ -29,6 +30,7 @@ export interface Database {
           current_stock?: number
           photo_url?: string | null
           notes?: string | null
+          hospital_pickup?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -43,6 +45,7 @@ export interface Database {
           current_stock?: number
           photo_url?: string | null
           notes?: string | null
+          hospital_pickup?: boolean
           created_at?: string
           updated_at?: string
         }

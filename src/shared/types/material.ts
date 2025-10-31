@@ -8,6 +8,7 @@ export interface Material {
   usagePerSession: number // Cantidad usada por sesión
   currentStock: number
   photoUrl?: string
+  hospitalPickup: boolean // Si se recoge en hospital (no se pide al proveedor)
   minSessions: number // Sesiones mínimas de reserva (default: 7)
   maxSessions: number // Sesiones máximas (default: 20)
   orderQuantity: number // Cantidad a pedir cuando está bajo

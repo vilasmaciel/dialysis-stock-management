@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ShoppingCart, Loader2, Package, CheckCircle, FileSpreadsheet, Loader, Mail, Phone } from 'lucide-react'
+import { ShoppingCart, Loader2, Package, CheckCircle, FileSpreadsheet, Loader, Mail, Phone, Hospital } from 'lucide-react'
 import { useMaterials } from '#/features/inventory/hooks/useMaterials'
 import { useCreateOrder } from '#/features/orders/hooks/useOrders'
 import { OrderItemCard } from '#/features/orders/components/OrderItemCard'
@@ -44,8 +44,9 @@ function OrdersPage() {
     )
   }
 
-  // Filter materials that need order
-  const materialsToOrder = materials?.filter((m) => m.needsOrder) || []
+  // Filter materials that need order - separate by hospital pickup
+  const materialsToOrder = materials?.filter((m) => m.needsOrder && !m.hospitalPickup) || []
+  const hospitalMaterials = materials?.filter((m) => m.needsOrder && m.hospitalPickup) || []
 
   // Initially select all materials with calculated quantities
   if (orderQuantities.size === 0 && materialsToOrder.length > 0) {
@@ -261,6 +262,40 @@ function OrdersPage() {
               ))}
             </div>
           </div>
+
+          {/* Hospital Pickup Materials Section */}
+          {hospitalMaterials.length > 0 && (
+            <Card className="border-orange-200 bg-orange-50/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Hospital className="h-5 w-5 text-orange-600" />
+                  Materiales para recoger en el hospital
+                </CardTitle>
+                <CardDescription>
+                  Estos materiales no se incluyen en el pedido al proveedor. 
+                  Deben recogerse directamente en el hospital.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {hospitalMaterials.map((material) => (
+                  <div key={material.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                    <div>
+                      <p className="font-medium">{material.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Stock: {material.currentStock} {material.unit} • 
+                        Sesiones: {material.availableSessions} / {material.minSessions}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-orange-600">
+                        Recoger en hospital
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Botón de acción */}
           {selectedItems.length > 0 && (
