@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Settings as SettingsIcon, Loader2, AlertCircle, PackageX, Plus, Save } from 'lucide-react'
 import { useMaterials } from '#/features/inventory/hooks/useMaterials'
 import { useSetting, useUpdateSetting } from '#/shared/hooks/useSettings'
@@ -34,14 +34,12 @@ function SettingsPage() {
   const updateSetting = useUpdateSetting()
 
   // Update local state when data loads
-  if (sessionsConfig && !configLoading) {
-    if (minSessions !== sessionsConfig.min_sessions.toString()) {
+  useEffect(() => {
+    if (sessionsConfig) {
       setMinSessions(sessionsConfig.min_sessions.toString())
-    }
-    if (maxSessions !== sessionsConfig.max_sessions.toString()) {
       setMaxSessions(sessionsConfig.max_sessions.toString())
     }
-  }
+  }, [sessionsConfig])
 
   const handleSaveConfig = async () => {
     const config: InventorySessionsConfig = {
