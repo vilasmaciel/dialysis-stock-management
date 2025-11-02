@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Package, Info, Hospital } from 'lucide-react'
+import { Package, Info, Hospital, Boxes } from 'lucide-react'
 import type { MaterialWithStats } from '#/shared/types/material'
 import { Button } from '#/shared/components/ui/button'
 import { Badge } from '#/shared/components/ui/badge'
@@ -109,6 +109,24 @@ function MaterialDetailContent({ material }: { material: MaterialWithStats }) {
               </p>
             </CardContent>
           </Card>
+        </>
+      )}
+
+      {/* Count Method Badge */}
+      {material.countMethod === 'boxes' && material.itemsPerBox && (
+        <>
+          <Separator />
+          <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50/50 px-3 py-2">
+            <Boxes className="h-4 w-4 text-blue-600 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-blue-900">
+                Se cuenta por cajas sin abrir
+              </p>
+              <p className="text-xs text-blue-700">
+                {material.itemsPerBox} unidades por caja
+              </p>
+            </div>
+          </div>
         </>
       )}
 

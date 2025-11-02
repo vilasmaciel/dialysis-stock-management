@@ -16,6 +16,7 @@ export interface Database {
           photo_url: string | null
           notes: string | null
           hospital_pickup: boolean
+          count_method: 'units' | 'boxes'
           created_at: string
           updated_at: string
         }
@@ -31,6 +32,7 @@ export interface Database {
           photo_url?: string | null
           notes?: string | null
           hospital_pickup?: boolean
+          count_method?: 'units' | 'boxes'
           created_at?: string
           updated_at?: string
         }
@@ -46,6 +48,7 @@ export interface Database {
           photo_url?: string | null
           notes?: string | null
           hospital_pickup?: boolean
+          count_method?: 'units' | 'boxes'
           created_at?: string
           updated_at?: string
         }

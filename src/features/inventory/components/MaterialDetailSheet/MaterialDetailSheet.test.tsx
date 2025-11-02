@@ -21,6 +21,7 @@ const mockMaterial: MaterialWithStats = {
   currentStock: 50,
   photoUrl: 'https://example.com/photo.jpg',
   hospitalPickup: false,
+  countMethod: 'units',
   minSessions: 7,
   maxSessions: 20,
   orderQuantity: 40,

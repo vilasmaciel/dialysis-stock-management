@@ -9,6 +9,7 @@ export interface Material {
   currentStock: number
   photoUrl?: string
   hospitalPickup: boolean // Si se recoge en hospital (no se pide al proveedor)
+  countMethod: 'units' | 'boxes' // Método de conteo: unidades individuales o cajas sin abrir
   minSessions: number // Sesiones mínimas de reserva (default: 7)
   maxSessions: number // Sesiones máximas (default: 20)
   orderQuantity: number // Cantidad a pedir cuando está bajo

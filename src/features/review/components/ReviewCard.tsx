@@ -3,7 +3,7 @@ import { MaterialWithStats } from '#/shared/types'
 import { Button } from '#/shared/components/ui/button'
 import { Input } from '#/shared/components/ui/input'
 import { cn } from '#/shared/lib/utils'
-import { Minus, Plus, Package, Info } from 'lucide-react'
+import { Minus, Plus, Package, Info, Hash } from 'lucide-react'
 import { ImageLightbox } from '#/shared/components/ImageLightbox'
 
 interface ReviewCardProps {
@@ -15,14 +15,24 @@ interface ReviewCardProps {
 }
 
 export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: ReviewCardProps) {
-  const [stock, setStock] = useState(material.currentStock.toString())
+  // Initialize stock state: if counting by boxes, convert units to boxes for display
+  const [stock, setStock] = useState(() => {
+    if (material.countMethod === 'boxes' && material.itemsPerBox) {
+      return Math.floor(material.currentStock / material.itemsPerBox).toString()
+    }
+    return material.currentStock.toString()
+  })
   const [imageError, setImageError] = useState(false)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   // Sync stock input with current material when it changes
   useEffect(() => {
-    setStock(material.currentStock.toString())
-  }, [material.id, material.currentStock])
+    if (material.countMethod === 'boxes' && material.itemsPerBox) {
+      setStock(Math.floor(material.currentStock / material.itemsPerBox).toString())
+    } else {
+      setStock(material.currentStock.toString())
+    }
+  }, [material.id, material.currentStock, material.countMethod, material.itemsPerBox])
 
   // Reset image error when material changes
   useEffect(() => {
@@ -32,24 +42,34 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
   const handleConfirm = () => {
     const value = parseFloat(stock)
     if (!isNaN(value) && value >= 0) {
-      onConfirm(value)
+      // Convert boxes to units if counting by boxes
+      const unitsToStore = material.countMethod === 'boxes' && material.itemsPerBox
+        ? value * material.itemsPerBox
+        : value
+      onConfirm(unitsToStore)
     }
   }
 
   const handleIncrement = () => {
     const currentValue = parseFloat(stock) || 0
+    // Always increment by 1 (either 1 box or 1 unit)
     setStock((currentValue + 1).toString())
   }
 
   const handleDecrement = () => {
     const currentValue = parseFloat(stock) || 0
     if (currentValue > 0) {
+      // Always decrement by 1 (either 1 box or 1 unit)
       setStock((currentValue - 1).toString())
     }
   }
 
   const stockValue = parseFloat(stock) || 0
-  const availableSessions = Math.floor(stockValue / material.usagePerSession)
+  // Convert to units if counting by boxes
+  const stockInUnits = material.countMethod === 'boxes' && material.itemsPerBox
+    ? stockValue * material.itemsPerBox
+    : stockValue
+  const availableSessions = Math.floor(stockInUnits / material.usagePerSession)
   const needsOrder = availableSessions < material.minSessions
 
   return (
@@ -92,8 +112,21 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
         {/* Input de stock */}
         <div className="mb-3 sm:mb-4">
           <label className="mb-2 block text-sm sm:text-base font-medium text-center">
-            ¿Cuánto stock tienes actualmente?
+            {material.countMethod === 'boxes' ? (
+              <>
+                ¿Cuántas <span className="font-bold text-primary">cajas sin abrir</span> tienes?
+              </>
+            ) : (
+              <>
+                ¿Cuántas <span className="font-bold text-primary">unidades</span> tienes actualmente?
+              </>
+            )}
           </label>
+          {material.countMethod === 'boxes' && material.itemsPerBox && (
+            <p className="text-xs text-muted-foreground text-center mb-2">
+              ({material.itemsPerBox} unidades por caja)
+            </p>
+          )}
           <div className="flex flex-col items-center gap-2">
             <div className="flex items-center gap-2">
               <Button
@@ -112,7 +145,7 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
                 placeholder="0"
                 className="text-xl sm:text-2xl text-center font-bold w-28 sm:w-32"
                 min="0"
-                step="0.1"
+                step={material.countMethod === 'boxes' ? 1 : 0.1}
               />
               <Button
                 type="button"
@@ -123,7 +156,19 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            <span className="text-sm text-muted-foreground">{material.unit}</span>
+            <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              {material.countMethod === 'boxes' ? (
+                <>
+                  <Package className="h-4 w-4" />
+                  cajas
+                </>
+              ) : (
+                <>
+                  <Hash className="h-3.5 w-3.5" />
+                  {material.unit}
+                </>
+              )}
+            </span>
           </div>
         </div>
 

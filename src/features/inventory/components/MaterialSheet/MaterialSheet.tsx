@@ -72,6 +72,8 @@ interface MaterialFormContentProps {
   setCurrentStock: (value: string) => void
   hospitalPickup: boolean
   setHospitalPickup: (value: boolean) => void
+  countMethod: 'units' | 'boxes'
+  setCountMethod: (value: 'units' | 'boxes') => void
   material?: Material
 }
 
@@ -95,6 +97,8 @@ function MaterialFormContent({
   setCurrentStock,
   hospitalPickup,
   setHospitalPickup,
+  countMethod,
+  setCountMethod,
   material,
 }: MaterialFormContentProps) {
   const [imageError, setImageError] = useState(false)
@@ -270,6 +274,27 @@ function MaterialFormContent({
           required
         />
       </div>
+
+      {/* Count Method - Only visible when itemsPerBox is defined, same row as usage per session */}
+      {itemsPerBox ? (
+        <div className="space-y-2">
+          <Label htmlFor="count_method">Método de conteo</Label>
+          <Select value={countMethod} onValueChange={(value) => setCountMethod(value as 'units' | 'boxes')}>
+            <SelectTrigger id="count_method">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="units">Unidades individuales</SelectItem>
+              <SelectItem value="boxes">Cajas sin abrir</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            {countMethod === 'boxes' ? 'Se cuentan cajas sin abrir' : 'Se cuentan todas las unidades'}
+          </p>
+        </div>
+      ) : (
+        <div></div>
+      )}
 
       {/* Current stock (only when creating) */}
       {!isEditing ? (
@@ -486,6 +511,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
   const [usagePerSession, setUsagePerSession] = useState('1')
   const [currentStock, setCurrentStock] = useState('0')
   const [hospitalPickup, setHospitalPickup] = useState(false)
+  const [countMethod, setCountMethod] = useState<'units' | 'boxes'>('units')
 
   // Sync form state with material prop
   useEffect(() => {
@@ -499,6 +525,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
       setUsagePerSession(material.usagePerSession?.toString() || '1')
       setCurrentStock(material.currentStock?.toString() || '0')
       setHospitalPickup(material.hospitalPickup || false)
+      setCountMethod(material.countMethod || 'units')
     } else {
       // Reset to defaults when creating new material
       setCode('')
@@ -510,6 +537,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
       setUsagePerSession('1')
       setCurrentStock('0')
       setHospitalPickup(false)
+      setCountMethod('units')
     }
   }, [material, open])
 
@@ -535,6 +563,7 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
       usage_per_session: Number.parseFloat(usagePerSession),
       current_stock: Number.parseFloat(currentStock),
       hospital_pickup: hospitalPickup,
+      count_method: countMethod,
     }
 
     try {
@@ -612,6 +641,8 @@ export function MaterialSheet({ material, open, onClose }: MaterialSheetProps) {
     setCurrentStock,
     hospitalPickup,
     setHospitalPickup,
+    countMethod,
+    setCountMethod,
     material,
   }
 
