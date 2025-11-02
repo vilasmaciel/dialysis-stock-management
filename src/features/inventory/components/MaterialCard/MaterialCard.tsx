@@ -13,7 +13,12 @@ interface MaterialCardProps {
 }
 
 export function MaterialCard({ material, onClick, showEditButton = true }: MaterialCardProps) {
-  const statusColor = material.availableSessions >= material.minSessions ? 'green' : 'red'
+  // Determine status color based on session thresholds
+  const statusColor =
+    material.availableSessions < 6 ? 'red' :
+    material.availableSessions < material.maxSessions ? 'yellow' :
+    'green'
+
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
 
@@ -60,11 +65,15 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
             <span
               className={cn(
                 'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white',
-                statusColor === 'green' ? 'bg-primary' : 'bg-destructive'
+                statusColor === 'green' ? 'bg-primary' :
+                statusColor === 'yellow' ? 'bg-yellow-500' :
+                'bg-destructive'
               )}
             >
               {statusColor === 'green' ? (
                 <CheckCircle2 className="h-3 w-3" />
+              ) : statusColor === 'yellow' ? (
+                <AlertTriangle className="h-3 w-3" />
               ) : (
                 <AlertCircle className="h-3 w-3" />
               )}
@@ -95,7 +104,9 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
           <span
             className={cn(
               'font-bold',
-              statusColor === 'green' ? 'text-primary' : 'text-destructive'
+              statusColor === 'green' ? 'text-primary' :
+              statusColor === 'yellow' ? 'text-yellow-600' :
+              'text-destructive'
             )}
           >
             {material.availableSessions} sesiones
@@ -121,10 +132,17 @@ export function MaterialCard({ material, onClick, showEditButton = true }: Mater
         </div>
       )}
 
-      {material.availableSessions >= material.minSessions && (
+      {statusColor === 'green' && (
         <div className="mt-4 flex items-center gap-2 rounded-md bg-muted p-2 text-sm text-primary">
           <CheckCircle2 className="h-4 w-4" />
-          <span>Stock suficiente para {material.availableSessions} sesiones</span>
+          <span>Stock óptimo para {material.availableSessions} sesiones</span>
+        </div>
+      )}
+
+      {statusColor === 'yellow' && (
+        <div className="mt-4 flex items-center gap-2 rounded-md bg-yellow-50 border border-yellow-200 p-2 text-sm text-yellow-700">
+          <AlertTriangle className="h-4 w-4" />
+          <span>Stock por debajo del óptimo ({material.availableSessions}/{material.maxSessions} sesiones)</span>
         </div>
       )}
 

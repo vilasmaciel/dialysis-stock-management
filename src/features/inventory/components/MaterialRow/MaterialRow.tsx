@@ -17,7 +17,12 @@ export function MaterialRow({ material, onOpenDetail }: MaterialRowProps) {
   const [imageError, setImageError] = useState(false)
   const { user } = useAuth()
   const { mutate: updateStock, isPending } = useUpdateMaterialStock()
-  const statusColor = material.availableSessions >= material.minSessions ? 'green' : 'red'
+
+  // Determine status color based on session thresholds
+  const statusColor =
+    material.availableSessions < 6 ? 'red' :
+    material.availableSessions < material.maxSessions ? 'yellow' :
+    'green'
 
   // Update local quantity when material changes (e.g., after save)
   useEffect(() => {
@@ -78,8 +83,10 @@ export function MaterialRow({ material, onOpenDetail }: MaterialRowProps) {
     <div
       className={cn(
         'rounded-lg border p-2 sm:p-3 transition-colors',
-        material.needsOrder
+        statusColor === 'red'
           ? 'bg-destructive/10 border-destructive/30'
+          : statusColor === 'yellow'
+          ? 'bg-yellow-50 border-yellow-200 hover:bg-yellow-50/80'
           : 'bg-card hover:bg-muted/50'
       )}
     >
@@ -113,7 +120,9 @@ export function MaterialRow({ material, onOpenDetail }: MaterialRowProps) {
               <span
                 className={cn(
                   'font-semibold',
-                  statusColor === 'green' ? 'text-primary' : 'text-destructive'
+                  statusColor === 'green' ? 'text-primary' :
+                  statusColor === 'yellow' ? 'text-yellow-600' :
+                  'text-destructive'
                 )}
               >
                 {material.availableSessions} sesiones
@@ -196,7 +205,9 @@ export function MaterialRow({ material, onOpenDetail }: MaterialRowProps) {
                 <span
                   className={cn(
                     'font-semibold',
-                    statusColor === 'green' ? 'text-primary' : 'text-destructive'
+                    statusColor === 'green' ? 'text-primary' :
+                    statusColor === 'yellow' ? 'text-yellow-600' :
+                    'text-destructive'
                   )}
                 >
                   {material.availableSessions} sesiones
