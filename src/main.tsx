@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
 import { routeTree } from './routeTree.gen'
 import { AuthProvider, useAuth } from './shared/contexts/AuthContext'
 import './index.css'
@@ -46,7 +47,7 @@ function App() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center">
-          <div className="mb-4 text-4xl">⏳</div>
+          <Loader2 className="mb-4 mx-auto h-12 w-12 animate-spin text-primary" />
           <h2 className="mb-2 text-xl font-semibold">Cargando...</h2>
           <p className="text-sm text-muted-foreground">
             Verificando tu sesión
