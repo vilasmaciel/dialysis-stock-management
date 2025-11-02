@@ -96,7 +96,7 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
 
         {/* Material Info */}
         <div className="mb-4 sm:mb-6 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold">{material.name}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">{material.name}</h2>
         </div>
 
         {/* Descripción del material */}
@@ -185,11 +185,6 @@ export function ReviewCard({ material, onConfirm, onBack, isFirst, isLast }: Rev
               {availableSessions}
             </span>
           </div>
-          {needsOrder && (
-            <div className="mt-2 text-xs sm:text-sm text-destructive">
-              ⚠️ Stock bajo! Mínimo recomendado: {material.minSessions} sesiones
-            </div>
-          )}
         </div>
 
         {/* Botones de acción */}

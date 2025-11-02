@@ -143,8 +143,7 @@ function OrdersPage() {
         title="Generar Pedido"
         subtitle={user?.user_metadata?.full_name || user?.email}
         icon={<ShoppingCart className="h-6 w-6" />}
-        showBack={true}
-        backTo="/dashboard"
+        showBack={false}
       />
 
       {/* Contact Info Card */}

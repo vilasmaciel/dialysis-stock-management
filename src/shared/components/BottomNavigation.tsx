@@ -23,12 +23,6 @@ export function BottomNavigation() {
   const { signOut } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  // Ocultar en páginas de flujo enfocado y páginas secundarias
-  const hiddenPaths = ['/review', '/orders', '/settings', '/historial', '/info']
-  if (hiddenPaths.includes(location.pathname)) {
-    return null
-  }
-
   return (
     <>
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-50 border-t bg-card">

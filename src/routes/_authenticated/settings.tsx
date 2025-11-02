@@ -76,8 +76,7 @@ function SettingsPage() {
         title="Configuración"
         subtitle="Gestiona materiales y preferencias del sistema"
         icon={<SettingsIcon className="h-6 w-6" />}
-        showBack={true}
-        backTo="/dashboard"
+        showBack={false}
       />
 
       <Tabs defaultValue="materials" className="w-full">

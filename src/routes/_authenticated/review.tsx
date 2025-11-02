@@ -105,8 +105,7 @@ function ReviewPage() {
         title="Revisión de Stock"
         subtitle={!isComplete ? `Material ${currentIndex + 1} de ${totalItems}` : undefined}
         icon={<ClipboardList className="h-6 w-6" />}
-        showBack={true}
-        backTo="/dashboard"
+        showBack={false}
       />
 
       {/* Progress Bar */}
