@@ -75,7 +75,7 @@ export function calculateMaterialFields(
     available_sessions,
     order_quantity,
     boxes_to_order,
-    needs_order: available_sessions < config.min_sessions,
+    needs_order: available_sessions < config.max_sessions,
   }
 }
 
