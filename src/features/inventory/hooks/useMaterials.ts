@@ -49,7 +49,8 @@ export function useMaterials() {
         }
       })
 
-      return materialsWithStats
+      // Sort by availableSessions ascending (lowest first)
+      return materialsWithStats.sort((a, b) => a.availableSessions - b.availableSessions)
     },
     enabled: !!sessionsConfig,
   })
