@@ -50,8 +50,8 @@ export function useMaterials() {
         }
       })
 
-      // Sort by availableSessions ascending (lowest first)
-      return materialsWithStats.sort((a, b) => a.availableSessions - b.availableSessions)
+      // Sort alphabetically by name for stable ordering
+      return materialsWithStats.sort((a, b) => a.name.localeCompare(b.name))
     },
     enabled: !!sessionsConfig,
   })
