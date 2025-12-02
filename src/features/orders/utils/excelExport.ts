@@ -5,6 +5,7 @@ export interface ExcelExportOptions {
   orderNumber: string
   items: OrderItem[]
   sheetName?: string
+  returnBlob?: boolean
 }
 
 /**
@@ -30,7 +31,7 @@ function calculateBoxes(uv: string | undefined, quantity: number): number {
  * Genera y descarga un archivo Excel con el formato de la plantilla CVC
  * Formato: Fungibles | CÓDIGO | UV | DESCRIPCIÓN | Cantidad | Lote / Nº serie
  */
-export function exportToExcel(options: ExcelExportOptions) {
+export function exportToExcel(options: ExcelExportOptions): Blob | string {
   const { orderNumber, items, sheetName = 'Fungibles' } = options
 
   // Crear datos para el Excel
@@ -92,9 +93,18 @@ export function exportToExcel(options: ExcelExportOptions) {
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
 
-  // Descargar archivo
   const filename = `pedido_${orderNumber}_${new Date().toISOString().split('T')[0]}.xlsx`
-  XLSX.writeFile(workbook, filename)
 
+  // If returnBlob is true, return Blob instead of downloading
+  if (options.returnBlob) {
+    const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+    const blob = new Blob([wbout], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+    return blob
+  }
+
+  // Otherwise, download the file
+  XLSX.writeFile(workbook, filename)
   return filename
 }
