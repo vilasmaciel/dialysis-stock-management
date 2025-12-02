@@ -15,15 +15,23 @@ export interface SystemConfig {
   version: string
 }
 
+export interface OrderEmailConfig {
+  recipient_email: string
+  cc_emails: string[]
+}
+
 // Type-safe setting keys
-export type SettingKey = 'inventory_sessions' | 'system'
+export type SettingKey = 'inventory_sessions' | 'system' | 'order_recipient_email' | 'order_cc_emails'
 
 // Helper type to map setting keys to their value types
-export type SettingValue<K extends SettingKey> = K extends 'inventory_sessions'
-  ? InventorySessionsConfig
-  : K extends 'system'
-    ? SystemConfig
-    : never
+export interface SettingValueMap {
+  inventory_sessions: InventorySessionsConfig
+  system: SystemConfig
+  order_recipient_email: string
+  order_cc_emails: string[]
+}
+
+export type SettingValue<K extends SettingKey> = SettingValueMap[K]
 
 // Material with calculated fields (for frontend use)
 export interface MaterialWithCalculations {

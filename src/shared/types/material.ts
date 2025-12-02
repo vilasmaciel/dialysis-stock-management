@@ -42,12 +42,16 @@ export interface Order {
   id: string
   orderNumber: string
   items: OrderItem[]
-  status: 'draft' | 'pending' | 'completed'
+  status: 'draft' | 'sent' | 'failed' | 'pending' | 'completed' // Add new statuses
   userId: string
   userName: string
   createdAt: string
   submittedAt?: string
   notes?: string
+  // New email fields
+  emailSent: boolean
+  emailSentAt?: string
+  emailError?: string
 }
 
 export interface OrderItem {
