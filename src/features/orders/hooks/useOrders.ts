@@ -16,12 +16,15 @@ export function useOrders() {
       return data.map((order) => ({
         id: order.id,
         orderNumber: order.order_number,
-        status: order.status as 'draft' | 'pending' | 'completed',
+        status: order.status as 'draft' | 'pending' | 'completed' | 'sent' | 'failed',
         userId: order.user_id,
         userName: order.user_name,
         notes: order.notes || undefined,
         createdAt: order.created_at,
         submittedAt: order.submitted_at || undefined,
+        emailSent: order.email_sent || false,
+        emailSentAt: order.email_sent_at || undefined,
+        emailError: order.email_error || undefined,
         items: order.order_items.map((item: any) => ({
           materialId: item.material_id,
           code: item.code,
@@ -45,11 +48,19 @@ export function useCreateOrder() {
       userName,
       items,
       notes,
+      emailSent = false,
+      emailSentAt,
+      emailError,
+      status = 'draft',
     }: {
       userId: string
       userName: string
       items: OrderItem[]
       notes?: string
+      emailSent?: boolean
+      emailSentAt?: string
+      emailError?: string
+      status?: 'draft' | 'sent' | 'failed'
     }) => {
       // Generate order number (timestamp-based)
       const orderNumber = `ORD-${Date.now()}`
@@ -61,8 +72,11 @@ export function useCreateOrder() {
           order_number: orderNumber,
           user_id: userId,
           user_name: userName,
-          status: 'draft',
+          status,
           notes: notes || null,
+          email_sent: emailSent,
+          email_sent_at: emailSentAt || null,
+          email_error: emailError || null,
         })
         .select()
         .single()
@@ -85,7 +99,7 @@ export function useCreateOrder() {
 
       if (itemsError) throw itemsError
 
-      return { orderId: order.id, orderNumber }
+      return { orderId: order.id, orderNumber, order }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] })
