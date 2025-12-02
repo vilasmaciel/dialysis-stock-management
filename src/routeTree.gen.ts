@@ -17,8 +17,8 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedReviewRouteImport } from './routes/_authenticated/review'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedInfoRouteImport } from './routes/_authenticated/info'
-import { Route as AuthenticatedHistorialRouteImport } from './routes/_authenticated/historial'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedOrdersNewRouteImport } from './routes/_authenticated/orders.new'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -59,15 +59,15 @@ const AuthenticatedInfoRoute = AuthenticatedInfoRouteImport.update({
   path: '/info',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedHistorialRoute = AuthenticatedHistorialRouteImport.update({
-  id: '/historial',
-  path: '/historial',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedOrdersNewRoute = AuthenticatedOrdersNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthenticatedOrdersRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -75,22 +75,22 @@ export interface FileRoutesByFullPath {
   '/auth-callback': typeof AuthCallbackRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/historial': typeof AuthenticatedHistorialRoute
   '/info': typeof AuthenticatedInfoRoute
-  '/orders': typeof AuthenticatedOrdersRoute
+  '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/review': typeof AuthenticatedReviewRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/orders/new': typeof AuthenticatedOrdersNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/historial': typeof AuthenticatedHistorialRoute
   '/info': typeof AuthenticatedInfoRoute
-  '/orders': typeof AuthenticatedOrdersRoute
+  '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/review': typeof AuthenticatedReviewRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/orders/new': typeof AuthenticatedOrdersNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -99,11 +99,11 @@ export interface FileRoutesById {
   '/auth-callback': typeof AuthCallbackRoute
   '/login': typeof LoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/historial': typeof AuthenticatedHistorialRoute
   '/_authenticated/info': typeof AuthenticatedInfoRoute
-  '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/_authenticated/review': typeof AuthenticatedReviewRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/orders/new': typeof AuthenticatedOrdersNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -112,22 +112,22 @@ export interface FileRouteTypes {
     | '/auth-callback'
     | '/login'
     | '/dashboard'
-    | '/historial'
     | '/info'
     | '/orders'
     | '/review'
     | '/settings'
+    | '/orders/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth-callback'
     | '/login'
     | '/dashboard'
-    | '/historial'
     | '/info'
     | '/orders'
     | '/review'
     | '/settings'
+    | '/orders/new'
   id:
     | '__root__'
     | '/'
@@ -135,11 +135,11 @@ export interface FileRouteTypes {
     | '/auth-callback'
     | '/login'
     | '/_authenticated/dashboard'
-    | '/_authenticated/historial'
     | '/_authenticated/info'
     | '/_authenticated/orders'
     | '/_authenticated/review'
     | '/_authenticated/settings'
+    | '/_authenticated/orders/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -207,13 +207,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInfoRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/historial': {
-      id: '/_authenticated/historial'
-      path: '/historial'
-      fullPath: '/historial'
-      preLoaderRoute: typeof AuthenticatedHistorialRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -221,23 +214,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/orders/new': {
+      id: '/_authenticated/orders/new'
+      path: '/new'
+      fullPath: '/orders/new'
+      preLoaderRoute: typeof AuthenticatedOrdersNewRouteImport
+      parentRoute: typeof AuthenticatedOrdersRoute
+    }
   }
 }
 
+interface AuthenticatedOrdersRouteChildren {
+  AuthenticatedOrdersNewRoute: typeof AuthenticatedOrdersNewRoute
+}
+
+const AuthenticatedOrdersRouteChildren: AuthenticatedOrdersRouteChildren = {
+  AuthenticatedOrdersNewRoute: AuthenticatedOrdersNewRoute,
+}
+
+const AuthenticatedOrdersRouteWithChildren =
+  AuthenticatedOrdersRoute._addFileChildren(AuthenticatedOrdersRouteChildren)
+
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedHistorialRoute: typeof AuthenticatedHistorialRoute
   AuthenticatedInfoRoute: typeof AuthenticatedInfoRoute
-  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
+  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRouteWithChildren
   AuthenticatedReviewRoute: typeof AuthenticatedReviewRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedHistorialRoute: AuthenticatedHistorialRoute,
   AuthenticatedInfoRoute: AuthenticatedInfoRoute,
-  AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
+  AuthenticatedOrdersRoute: AuthenticatedOrdersRouteWithChildren,
   AuthenticatedReviewRoute: AuthenticatedReviewRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }

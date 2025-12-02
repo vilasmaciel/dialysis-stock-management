@@ -4,6 +4,7 @@ import {
   isSignedIn,
   signInWithGmail,
 } from '../utils/gmailClient'
+import { useSetting } from '#/shared/hooks/useSettings'
 
 export function useGmailAuth() {
   const [isInitialized, setIsInitialized] = useState(false)
@@ -11,9 +12,20 @@ export function useGmailAuth() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
-  // Initialize on mount
+  // Load Google API credentials from settings
+  const { data: googleApiCreds, isLoading: isLoadingCreds } = useSetting('google_api_credentials')
+
+  // Initialize on mount when credentials are available
   useEffect(() => {
-    initializeGapi()
+    if (isLoadingCreds) return
+
+    if (!googleApiCreds?.client_id) {
+      setError(new Error('Las credenciales de Google API no están configuradas. Por favor, ve a Configuración para añadirlas.'))
+      setIsLoading(false)
+      return
+    }
+
+    initializeGapi(googleApiCreds.client_id, googleApiCreds.api_key)
       .then(() => {
         setIsInitialized(true)
         setHasPermissions(isSignedIn())
@@ -24,7 +36,7 @@ export function useGmailAuth() {
       .finally(() => {
         setIsLoading(false)
       })
-  }, [])
+  }, [googleApiCreds, isLoadingCreds])
 
   // Sign in and request permissions
   const signIn = async () => {

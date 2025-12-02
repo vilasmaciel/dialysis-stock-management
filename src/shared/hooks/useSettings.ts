@@ -20,9 +20,10 @@ export function useSetting<K extends SettingKey>(key: K) {
         .from('settings')
         .select('*')
         .eq('key', key)
-        .single()
+        .maybeSingle()
 
       if (error) throw error
+      if (!data) return null
       return data.value as unknown as SettingValue<K>
     },
   })
@@ -57,8 +58,14 @@ export function useUpdateSetting() {
     mutationFn: async (variables) => {
       const { data, error } = await supabase
         .from('settings')
-        .update({ value: variables.value, updated_at: new Date().toISOString() })
-        .eq('key', variables.key)
+        .upsert(
+          {
+            key: variables.key,
+            value: variables.value,
+            updated_at: new Date().toISOString()
+          },
+          { onConflict: 'key' }
+        )
         .select()
         .single()
 

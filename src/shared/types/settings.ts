@@ -20,8 +20,13 @@ export interface OrderEmailConfig {
   cc_emails: string[]
 }
 
+export interface GoogleApiConfig {
+  client_id: string
+  api_key?: string
+}
+
 // Type-safe setting keys
-export type SettingKey = 'inventory_sessions' | 'system' | 'order_recipient_email' | 'order_cc_emails'
+export type SettingKey = 'inventory_sessions' | 'system' | 'order_recipient_email' | 'order_cc_emails' | 'google_api_credentials'
 
 // Helper type to map setting keys to their value types
 export interface SettingValueMap {
@@ -29,6 +34,7 @@ export interface SettingValueMap {
   system: SystemConfig
   order_recipient_email: string
   order_cc_emails: string[]
+  google_api_credentials: GoogleApiConfig
 }
 
 export type SettingValue<K extends SettingKey> = SettingValueMap[K]

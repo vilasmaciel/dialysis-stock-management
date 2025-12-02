@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
-import { Home, ClipboardCheck, ShoppingCart, Menu, Settings, History, Info, LogOut } from 'lucide-react'
+import { Home, ClipboardCheck, ShoppingCart, Menu, Settings, Info, LogOut } from 'lucide-react'
 import { Button } from '#/shared/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '#/shared/components/ui/sheet'
 import { Separator } from '#/shared/components/ui/separator'
@@ -65,12 +65,6 @@ export function BottomNavigation() {
               <Button variant="ghost" className="w-full justify-start">
                 <Settings className="mr-2 h-4 w-4" />
                 Configuración
-              </Button>
-            </Link>
-            <Link to="/historial" onClick={() => setIsMenuOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">
-                <History className="mr-2 h-4 w-4" />
-                Historial
               </Button>
             </Link>
             <Link to="/info" onClick={() => setIsMenuOpen(false)}>

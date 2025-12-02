@@ -128,32 +128,41 @@ export interface Database {
         Row: {
           id: string
           order_number: string
-          status: 'draft' | 'pending' | 'completed'
+          status: 'draft' | 'pending' | 'completed' | 'sent' | 'failed'
           user_id: string
           user_name: string
           notes: string | null
           created_at: string
           submitted_at: string | null
+          email_sent: boolean
+          email_sent_at: string | null
+          email_error: string | null
         }
         Insert: {
           id?: string
           order_number: string
-          status?: 'draft' | 'pending' | 'completed'
+          status?: 'draft' | 'pending' | 'completed' | 'sent' | 'failed'
           user_id: string
           user_name: string
           notes?: string | null
           created_at?: string
           submitted_at?: string | null
+          email_sent?: boolean
+          email_sent_at?: string | null
+          email_error?: string | null
         }
         Update: {
           id?: string
           order_number?: string
-          status?: 'draft' | 'pending' | 'completed'
+          status?: 'draft' | 'pending' | 'completed' | 'sent' | 'failed'
           user_id?: string
           user_name?: string
           notes?: string | null
           created_at?: string
           submitted_at?: string | null
+          email_sent?: boolean
+          email_sent_at?: string | null
+          email_error?: string | null
         }
         Relationships: []
       }
@@ -208,6 +217,36 @@ export interface Database {
             referencedColumns: ['id']
           }
         ]
+      }
+      user_profiles: {
+        Row: {
+          id: string
+          user_id: string
+          full_name: string | null
+          phone: string | null
+          address: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          full_name?: string | null
+          phone?: string | null
+          address?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          full_name?: string | null
+          phone?: string | null
+          address?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {}

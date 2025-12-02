@@ -32,9 +32,10 @@ function SettingsPage() {
   // Fetch data
   const { data: materials, isLoading: materialsLoading, error: materialsError } = useMaterials()
   const { data: sessionsConfig, isLoading: configLoading } = useSetting('inventory_sessions')
-  const { data: userProfile, isLoading: profileLoading } = useUserProfile(user?.id)
+  const { data: userProfile } = useUserProfile(user?.id)
   const { data: recipientEmail } = useSetting('order_recipient_email')
   const { data: ccEmails } = useSetting('order_cc_emails')
+  const { data: googleApiCreds } = useSetting('google_api_credentials')
 
   // Sessions config state
   const [minSessions, setMinSessions] = useState(sessionsConfig?.min_sessions?.toString() || '7')
@@ -52,6 +53,10 @@ function SettingsPage() {
   const [orderCc, setOrderCc] = useState(
     (ccEmails || ['vilasmaciel@gmail.com']).join(', ')
   )
+
+  // Google API credentials state
+  const [googleClientId, setGoogleClientId] = useState('')
+  const [googleApiKey, setGoogleApiKey] = useState('')
 
   // Update settings mutation
   const updateSetting = useUpdateSetting()
@@ -77,6 +82,13 @@ function SettingsPage() {
     if (recipientEmail) setOrderRecipient(recipientEmail)
     if (ccEmails) setOrderCc(ccEmails.join(', '))
   }, [recipientEmail, ccEmails])
+
+  useEffect(() => {
+    if (googleApiCreds) {
+      setGoogleClientId(googleApiCreds.client_id || '')
+      setGoogleApiKey(googleApiCreds.api_key || '')
+    }
+  }, [googleApiCreds])
 
   const handleSaveConfig = async () => {
     try {
@@ -113,6 +125,17 @@ function SettingsPage() {
         key: 'order_cc_emails',
         value: orderCc.split(',').map((e) => e.trim()) as any,
       })
+
+      // Save Google API credentials (only if provided)
+      if (googleClientId.trim()) {
+        await updateSetting.mutateAsync({
+          key: 'google_api_credentials',
+          value: {
+            client_id: googleClientId.trim(),
+            api_key: googleApiKey.trim() || undefined,
+          } as any,
+        })
+      }
 
       toast.success('Configuración guardada correctamente')
     } catch (error) {
@@ -284,6 +307,47 @@ function SettingsPage() {
                       />
                       <p className="text-xs text-muted-foreground">
                         Emails que recibirán copia de los pedidos (separados por comas)
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Google API Configuration Section */}
+                  <Separator className="my-6" />
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold">Credenciales de Google API</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Para enviar pedidos por Gmail automáticamente
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Google Client ID */}
+                    <div className="space-y-2">
+                      <Label htmlFor="google_client_id">Google Client ID</Label>
+                      <Input
+                        id="google_client_id"
+                        type="text"
+                        value={googleClientId}
+                        onChange={(e) => setGoogleClientId(e.target.value)}
+                        placeholder="123456789.apps.googleusercontent.com"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Client ID obtenido de Google Cloud Console
+                      </p>
+                    </div>
+
+                    {/* Google API Key */}
+                    <div className="space-y-2">
+                      <Label htmlFor="google_api_key">Google API Key (opcional)</Label>
+                      <Input
+                        id="google_api_key"
+                        type="text"
+                        value={googleApiKey}
+                        onChange={(e) => setGoogleApiKey(e.target.value)}
+                        placeholder="AIza..."
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        API Key de Google Cloud Console (opcional, mejora el rendimiento)
                       </p>
                     </div>
                   </div>

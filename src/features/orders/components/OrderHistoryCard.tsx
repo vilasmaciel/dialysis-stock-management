@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Card, CardContent } from '#/shared/components/ui/card'
 import { Button } from '#/shared/components/ui/button'
 import { Badge } from '#/shared/components/ui/badge'
-import { ChevronDown, ChevronUp, Download, Repeat, Package, CheckCircle, AlertTriangle } from 'lucide-react'
+import { ChevronDown, ChevronUp, Download, Repeat, Package, CheckCircle, AlertTriangle, Clock } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '#/shared/components/ui/collapsible'
 import type { Order } from '#/shared/types'
 import { format } from 'date-fns'
@@ -39,6 +39,18 @@ export function OrderHistoryCard({
       label: 'Borrador',
       variant: 'secondary' as const,
       color: 'text-muted-foreground',
+    },
+    pending: {
+      icon: Clock,
+      label: 'Pendiente',
+      variant: 'secondary' as const,
+      color: 'text-yellow-600',
+    },
+    completed: {
+      icon: CheckCircle,
+      label: 'Completado',
+      variant: 'default' as const,
+      color: 'text-green-600',
     },
   }
 

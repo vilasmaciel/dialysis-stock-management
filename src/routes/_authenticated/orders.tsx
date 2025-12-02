@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useMatches, Outlet } from '@tanstack/react-router'
 import { ShoppingCart, Loader2, Package, CheckCircle, Plus } from 'lucide-react'
 import { useOrders } from '#/features/orders/hooks/useOrders'
 import { OrderHistoryCard } from '#/features/orders/components/OrderHistoryCard'
@@ -17,6 +17,16 @@ function OrdersPage() {
   const { data: orders, isLoading } = useOrders()
   const navigate = useNavigate()
   const [filter, setFilter] = useState<'all' | 'sent' | 'failed'>('all')
+  const matches = useMatches()
+
+  // Check if we're on a child route by examining the route matches
+  // If there's a match beyond the /orders route, we're on a child route
+  const isChildRoute = matches.some(match => match.routeId === '/_authenticated/orders/new')
+
+  // If we're on a child route, just render the Outlet
+  if (isChildRoute) {
+    return <Outlet />
+  }
 
   if (isLoading) {
     return (

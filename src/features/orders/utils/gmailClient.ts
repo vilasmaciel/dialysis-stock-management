@@ -14,15 +14,15 @@ export interface EmailData {
 }
 
 /**
- * Initialize Google API client
+ * Initialize Google API client with provided credentials
  */
-export async function initializeGapi(): Promise<void> {
+export async function initializeGapi(clientId: string, apiKey?: string): Promise<void> {
   return new Promise((resolve, reject) => {
     gapi.load('client:auth2', async () => {
       try {
         await gapi.client.init({
-          apiKey: import.meta.env.VITE_GOOGLE_API_KEY || '',
-          clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          apiKey: apiKey || '',
+          clientId: clientId,
           discoveryDocs: DISCOVERY_DOCS,
           scope: SCOPES,
         })
@@ -50,6 +50,16 @@ export function isSignedIn(): boolean {
  */
 export async function signInWithGmail(): Promise<void> {
   const authInstance = gapi.auth2.getAuthInstance()
+
+  if (!authInstance) {
+    throw new Error(
+      'Google API no está inicializado. Por favor, verifica que:\n' +
+      '1. Las credenciales de Google Cloud están configuradas correctamente\n' +
+      '2. VITE_GOOGLE_CLIENT_ID está definido en las variables de entorno\n' +
+      '3. La API de Gmail está habilitada en Google Cloud Console'
+    )
+  }
+
   await authInstance.signIn({
     scope: SCOPES,
   })
@@ -118,7 +128,8 @@ async function createMimeMessage(data: EmailData): Promise<string> {
 export async function sendEmailWithAttachment(data: EmailData): Promise<{ id: string }> {
   const raw = await createMimeMessage(data)
 
-  const response = await gapi.client.gmail.users.messages.send({
+  // Type assertion for Gmail API - gapi types don't include gmail by default
+  const response = await (gapi.client as any).gmail.users.messages.send({
     userId: 'me',
     resource: {
       raw,

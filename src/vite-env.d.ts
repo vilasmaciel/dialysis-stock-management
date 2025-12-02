@@ -1,4 +1,6 @@
 /// <reference types="vite/client" />
+/// <reference types="gapi" />
+/// <reference types="gapi.auth2" />
 
 interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL: string
@@ -7,4 +9,11 @@ interface ImportMetaEnv {
 
 interface ImportMeta {
   readonly env: ImportMetaEnv
+}
+
+// Declare gapi as a global variable
+declare global {
+  interface Window {
+    gapi?: typeof gapi
+  }
 }

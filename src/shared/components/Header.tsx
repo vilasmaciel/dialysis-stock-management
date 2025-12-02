@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { History, Settings, LogOut, ChevronDown, Info } from 'lucide-react'
+import { Settings, LogOut, ChevronDown, Info } from 'lucide-react'
 import { useAuth } from '#/shared/contexts/AuthContext'
 import {
   DropdownMenu,
@@ -58,12 +58,6 @@ export function Header() {
               </div>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/historial" className="cursor-pointer">
-                <History className="mr-2 h-4 w-4" />
-                <span>Historial</span>
-              </Link>
-            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/settings" className="cursor-pointer">
                 <Settings className="mr-2 h-4 w-4" />
