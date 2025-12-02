@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { Settings as SettingsIcon, Loader2, AlertCircle, PackageX, Plus, Save } from 'lucide-react'
 import { useMaterials } from '#/features/inventory/hooks/useMaterials'
 import { useSetting, useUpdateSetting } from '#/shared/hooks/useSettings'
+import { useUserProfile, useUpdateUserProfile } from '#/shared/hooks/useUserProfile'
+import { useAuth } from '#/shared/contexts/AuthContext'
 import { MaterialSheet } from '#/features/inventory/components/MaterialSheet/MaterialSheet'
 import { MaterialSettingsRow } from '#/features/inventory/components/MaterialSettingsRow/MaterialSettingsRow'
 import { PageHeader } from '#/shared/components/PageHeader'
@@ -11,6 +13,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/sha
 import { Button } from '#/shared/components/ui/button'
 import { Input } from '#/shared/components/ui/input'
 import { Label } from '#/shared/components/ui/label'
+import { Separator } from '#/shared/components/ui/separator'
+import { toast } from 'sonner'
 import type { Material } from '#/shared/types/material'
 import type { InventorySessionsConfig } from '#/shared/types/settings'
 
@@ -22,16 +26,36 @@ function SettingsPage() {
   const [selectedMaterial, setSelectedMaterial] = useState<Material | undefined>()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
+  // Auth context
+  const { user } = useAuth()
+
   // Fetch data
   const { data: materials, isLoading: materialsLoading, error: materialsError } = useMaterials()
   const { data: sessionsConfig, isLoading: configLoading } = useSetting('inventory_sessions')
+  const { data: userProfile, isLoading: profileLoading } = useUserProfile(user?.id)
+  const { data: recipientEmail } = useSetting('order_recipient_email')
+  const { data: ccEmails } = useSetting('order_cc_emails')
 
   // Sessions config state
   const [minSessions, setMinSessions] = useState(sessionsConfig?.min_sessions?.toString() || '7')
   const [maxSessions, setMaxSessions] = useState(sessionsConfig?.max_sessions?.toString() || '20')
 
+  // User profile state
+  const [fullName, setFullName] = useState(userProfile?.fullName || '')
+  const [phone, setPhone] = useState(userProfile?.phone || '')
+  const [address, setAddress] = useState(userProfile?.address || '')
+
+  // Email config state
+  const [orderRecipient, setOrderRecipient] = useState(
+    recipientEmail || 'hemodialisisencasa@palex.es'
+  )
+  const [orderCc, setOrderCc] = useState(
+    (ccEmails || ['vilasmaciel@gmail.com']).join(', ')
+  )
+
   // Update settings mutation
   const updateSetting = useUpdateSetting()
+  const updateProfile = useUpdateUserProfile()
 
   // Update local state when data loads
   useEffect(() => {
@@ -41,16 +65,60 @@ function SettingsPage() {
     }
   }, [sessionsConfig])
 
-  const handleSaveConfig = async () => {
-    const config: InventorySessionsConfig = {
-      min_sessions: Number.parseInt(minSessions),
-      max_sessions: Number.parseInt(maxSessions),
+  useEffect(() => {
+    if (userProfile) {
+      setFullName(userProfile.fullName || '')
+      setPhone(userProfile.phone || '')
+      setAddress(userProfile.address || '')
     }
+  }, [userProfile])
 
-    await updateSetting.mutateAsync({
-      key: 'inventory_sessions',
-      value: config as any,
-    })
+  useEffect(() => {
+    if (recipientEmail) setOrderRecipient(recipientEmail)
+    if (ccEmails) setOrderCc(ccEmails.join(', '))
+  }, [recipientEmail, ccEmails])
+
+  const handleSaveConfig = async () => {
+    try {
+      // Save sessions config
+      const config: InventorySessionsConfig = {
+        min_sessions: Number.parseInt(minSessions),
+        max_sessions: Number.parseInt(maxSessions),
+      }
+
+      await updateSetting.mutateAsync({
+        key: 'inventory_sessions',
+        value: config as any,
+      })
+
+      // Save user profile
+      if (user?.id) {
+        await updateProfile.mutateAsync({
+          userId: user.id,
+          profile: {
+            fullName,
+            phone,
+            address,
+          },
+        })
+      }
+
+      // Save email settings
+      await updateSetting.mutateAsync({
+        key: 'order_recipient_email',
+        value: orderRecipient as any,
+      })
+
+      await updateSetting.mutateAsync({
+        key: 'order_cc_emails',
+        value: orderCc.split(',').map((e) => e.trim()) as any,
+      })
+
+      toast.success('Configuración guardada correctamente')
+    } catch (error) {
+      toast.error('Error al guardar la configuración')
+      console.error(error)
+    }
   }
 
   const handleAddMaterial = () => {
@@ -130,12 +198,102 @@ function SettingsPage() {
                     </p>
                   </div>
 
+                  <Separator className="my-4" />
+
+                  {/* User Profile Section */}
+                  <div className="space-y-2 pt-2">
+                    <h3 className="text-lg font-semibold">Datos de Envío</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Información que aparecerá en los emails de pedidos
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Full Name */}
+                    <div className="space-y-2">
+                      <Label htmlFor="full_name">Nombre completo</Label>
+                      <Input
+                        id="full_name"
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Isabel Maciel Estévez"
+                      />
+                    </div>
+
+                    {/* Phone */}
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Teléfono</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="615862442"
+                      />
+                    </div>
+
+                    {/* Address */}
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Dirección</Label>
+                      <Input
+                        id="address"
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Calle Ceán 26, Nigrán. 36350, Pontevedra"
+                      />
+                    </div>
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  {/* Email Configuration Section */}
+                  <div className="space-y-2 pt-2">
+                    <h3 className="text-lg font-semibold">Configuración de Emails</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Destinatarios para los pedidos enviados por email
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Recipient Email */}
+                    <div className="space-y-2">
+                      <Label htmlFor="order_recipient">Email destinatario principal</Label>
+                      <Input
+                        id="order_recipient"
+                        type="email"
+                        value={orderRecipient}
+                        onChange={(e) => setOrderRecipient(e.target.value)}
+                        placeholder="hemodialisisencasa@palex.es"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Email principal donde se enviarán los pedidos
+                      </p>
+                    </div>
+
+                    {/* CC Emails */}
+                    <div className="space-y-2">
+                      <Label htmlFor="order_cc">Emails en copia (CC)</Label>
+                      <Input
+                        id="order_cc"
+                        type="text"
+                        value={orderCc}
+                        onChange={(e) => setOrderCc(e.target.value)}
+                        placeholder="email1@example.com, email2@example.com"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Emails que recibirán copia de los pedidos (separados por comas)
+                      </p>
+                    </div>
+                  </div>
+
                   <Button
                     onClick={handleSaveConfig}
-                    disabled={updateSetting.isPending}
+                    disabled={updateSetting.isPending || updateProfile.isPending}
                     className="w-full"
                   >
-                    {updateSetting.isPending && (
+                    {(updateSetting.isPending || updateProfile.isPending) && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
                     <Save className="mr-2 h-4 w-4" />
